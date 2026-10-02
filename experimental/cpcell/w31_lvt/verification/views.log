@@ -1,0 +1,116 @@
+OpenROAD v2.0-33764-ga65b06e763 
+Features included (+) or not (-): +GPU +GUI +Python
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ODB-0227] LEF file: ../GT2N/techlib/gt2_tech.lef, created 51 layers, 19 vias
+[INFO ODB-0227] LEF file: ../GT2N/lef/tt/gt2_6t_w31_lvt.lef, created 72 library cells
+[INFO ODB-0227] LEF file: build/gt2n_logic_batch/cells.lef, created 4 library cells
+[WARNING STA-0503] report_checks -group_count is deprecated. Use -group_path_count instead.
+Startpoint: A (input port clocked by virtual)
+Endpoint: ynand (output port clocked by virtual)
+Path Group: virtual
+Path Type: max
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock virtual (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ input external delay
+   0.0000    0.0000 ^ A (in)
+  14.0220   14.0220 v n0/Y (gt2_6t_nand4_w31_lvt)
+   0.0000   14.0220 v ynand (out)
+            14.0220   data arrival time
+
+1000.0000 1000.0000   clock virtual (rise edge)
+   0.0000 1000.0000   clock network delay (ideal)
+   0.0000 1000.0000   clock reconvergence pessimism
+   0.0000 1000.0000   output external delay
+          1000.0000   data required time
+-------------------------------------------------------------
+          1000.0000   data required time
+           -14.0220   data arrival time
+-------------------------------------------------------------
+           985.9780   slack (MET)
+
+
+Startpoint: A (input port clocked by virtual)
+Endpoint: ynor (output port clocked by virtual)
+Path Group: virtual
+Path Type: max
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock virtual (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 v input external delay
+   0.0000    0.0000 v A (in)
+  13.2681   13.2681 ^ n1/Y (gt2_6t_nor4_w31_lvt)
+   0.0000   13.2681 ^ ynor (out)
+            13.2681   data arrival time
+
+1000.0000 1000.0000   clock virtual (rise edge)
+   0.0000 1000.0000   clock network delay (ideal)
+   0.0000 1000.0000   clock reconvergence pessimism
+   0.0000 1000.0000   output external delay
+          1000.0000   data required time
+-------------------------------------------------------------
+          1000.0000   data required time
+           -13.2681   data arrival time
+-------------------------------------------------------------
+           986.7319   slack (MET)
+
+
+Startpoint: B (input port clocked by virtual)
+Endpoint: yoai (output port clocked by virtual)
+Path Group: virtual
+Path Type: max
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock virtual (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ input external delay
+   0.0000    0.0000 ^ B (in)
+  13.1011   13.1011 v n3/Y (gt2_6t_oai221_w31_lvt)
+   0.0000   13.1011 v yoai (out)
+            13.1011   data arrival time
+
+1000.0000 1000.0000   clock virtual (rise edge)
+   0.0000 1000.0000   clock network delay (ideal)
+   0.0000 1000.0000   clock reconvergence pessimism
+   0.0000 1000.0000   output external delay
+          1000.0000   data required time
+-------------------------------------------------------------
+          1000.0000   data required time
+           -13.1011   data arrival time
+-------------------------------------------------------------
+           986.8989   slack (MET)
+
+
+Startpoint: B (input port clocked by virtual)
+Endpoint: yaoi (output port clocked by virtual)
+Path Group: virtual
+Path Type: max
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock virtual (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 v input external delay
+   0.0000    0.0000 v B (in)
+  12.7243   12.7243 ^ n2/Y (gt2_6t_aoi221_w31_lvt)
+   0.0000   12.7243 ^ yaoi (out)
+            12.7243   data arrival time
+
+1000.0000 1000.0000   clock virtual (rise edge)
+   0.0000 1000.0000   clock network delay (ideal)
+   0.0000 1000.0000   clock reconvergence pessimism
+   0.0000 1000.0000   output external delay
+          1000.0000   data required time
+-------------------------------------------------------------
+          1000.0000   data required time
+           -12.7243   data arrival time
+-------------------------------------------------------------
+           987.2757   slack (MET)
+
+

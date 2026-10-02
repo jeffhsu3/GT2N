@@ -1,0 +1,47 @@
+.SUBCKT NAND4 A B C D Y VDD VSS
+MN0 Y A N1 VSS nmos w=46n l=14n nfin=2
+MN1 N1 B N2 VSS nmos w=46n l=14n nfin=2
+MN2 N2 C N3 VSS nmos w=46n l=14n nfin=2
+MN3 N3 D VSS VSS nmos w=46n l=14n nfin=2
+MP0 Y A VDD VDD pmos w=46n l=14n nfin=2
+MP1 Y B VDD VDD pmos w=46n l=14n nfin=2
+MP2 Y C VDD VDD pmos w=46n l=14n nfin=2
+MP3 Y D VDD VDD pmos w=46n l=14n nfin=2
+.ENDS NAND4
+
+.SUBCKT NOR4 A B C D Y VDD VSS
+MN0 Y A VSS VSS nmos w=46n l=14n nfin=2
+MN1 Y B VSS VSS nmos w=46n l=14n nfin=2
+MN2 Y C VSS VSS nmos w=46n l=14n nfin=2
+MN3 Y D VSS VSS nmos w=46n l=14n nfin=2
+MP0 Y A P1 VDD pmos w=46n l=14n nfin=2
+MP1 P1 B P2 VDD pmos w=46n l=14n nfin=2
+MP2 P2 C P3 VDD pmos w=46n l=14n nfin=2
+MP3 P3 D VDD VDD pmos w=46n l=14n nfin=2
+.ENDS NOR4
+
+.SUBCKT AOI221 A1 A2 B1 B2 C Y VDD VSS
+MNA0 Y A1 NA1 VSS nmos w=46n l=14n nfin=2
+MNA1 NA1 A2 VSS VSS nmos w=46n l=14n nfin=2
+MNB0 Y B1 NB1 VSS nmos w=46n l=14n nfin=2
+MNB1 NB1 B2 VSS VSS nmos w=46n l=14n nfin=2
+MNC Y C VSS VSS nmos w=46n l=14n nfin=2
+MPA0 Y A1 P1 VDD pmos w=46n l=14n nfin=2
+MPA1 Y A2 P1 VDD pmos w=46n l=14n nfin=2
+MPB0 P1 B1 P2 VDD pmos w=46n l=14n nfin=2
+MPB1 P1 B2 P2 VDD pmos w=46n l=14n nfin=2
+MPC P2 C VDD VDD pmos w=46n l=14n nfin=2
+.ENDS AOI221
+
+.SUBCKT OAI221 A1 A2 B1 B2 C Y VDD VSS
+MNA0 Y A1 N1 VSS nmos w=46n l=14n nfin=2
+MNA1 Y A2 N1 VSS nmos w=46n l=14n nfin=2
+MNB0 N1 B1 N2 VSS nmos w=46n l=14n nfin=2
+MNB1 N1 B2 N2 VSS nmos w=46n l=14n nfin=2
+MNC N2 C VSS VSS nmos w=46n l=14n nfin=2
+MPA0 Y A1 PA1 VDD pmos w=46n l=14n nfin=2
+MPA1 PA1 A2 VDD VDD pmos w=46n l=14n nfin=2
+MPB0 Y B1 PB1 VDD pmos w=46n l=14n nfin=2
+MPB1 PB1 B2 VDD VDD pmos w=46n l=14n nfin=2
+MPC Y C VDD VDD pmos w=46n l=14n nfin=2
+.ENDS OAI221

@@ -1,0 +1,39 @@
+
+-- Running command `read_liberty -lib build/gt2n_logic_batch/cells_tt.lib; read_verilog build/gt2n_logic/smoke.v; hierarchy -check -top logic_batch_smoke; stat' --
+
+1. Executing Liberty frontend: build/gt2n_logic_batch/cells_tt.lib
+Imported 4 cell types from liberty file.
+
+2. Executing Verilog-2005 frontend: build/gt2n_logic/smoke.v
+Parsing Verilog input from `build/gt2n_logic/smoke.v' to AST representation.
+Generating RTLIL representation for module `\logic_batch_smoke'.
+Successfully finished Verilog frontend.
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1. Analyzing design hierarchy..
+Top module:  \logic_batch_smoke
+
+3.2. Analyzing design hierarchy..
+Top module:  \logic_batch_smoke
+Removed 0 unused modules.
+
+4. Printing statistics.
+
+=== logic_batch_smoke ===
+
+   Number of wires:                  9
+   Number of wire bits:              9
+   Number of public wires:           9
+   Number of public wire bits:       9
+   Number of ports:                  9
+   Number of port bits:              9
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  4
+     gt2_6t_aoi221_w31_lvt           1
+     gt2_6t_nand4_w31_lvt            1
+     gt2_6t_nor4_w31_lvt             1
+     gt2_6t_oai221_w31_lvt           1
+
