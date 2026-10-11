@@ -29,7 +29,7 @@ within the configured search model:
 | OAI221 | 294 × 144 | 0.042336 | 32 |
 
 All four passed transistor LVS individually and in mirrored 2 × 2 arrays.
-DRC contained only the two documented categories discussed below. All 96
+DRC contained only the documented `GATE.2` category discussed below. All 96
 SPICE truth-table vectors and 900 propagation-delay measurements passed.
 OpenROAD loaded the generated LEF and Liberty alongside the released GT2N
 LEFs, linked all four cells, and evaluated their timing arcs. Yosys also loaded
@@ -109,10 +109,22 @@ Top-level signal labels establish the fixture's external connections without
 adding metal that could conceal an internal routing problem.
 
 The flow fails on any LVS mismatch or DRC category other than the reference
-project's documented `GATE.2` and `SDCON.ACT.1` findings. These are respectively
-the outer gate-grid ends and the platform deck's contact-enclosure convention.
+project's documented `GATE.2` finding: the platform deck reads the spacing past
+the outermost gates of a cell or array as a gate space, so it marks those two
+edges though no gate faces them. Each cell and each 2 × 2 array reports two.
 Counts are reported explicitly; acceptance is not a claim of zero DRC findings
 or proprietary signoff.
+
+The DRC was first run with a copy of the platform deck that checked
+`SDCON.ACT.1` at 10 nm. GT2N's runset (`icv_runset/Include/gt2.sdcon.drc.rs`)
+asks for 5 nm, and every contact here runs exactly 5 nm past ACT, as in the
+released w31 cells, so that copy reported 16-20 `SDCON.ACT.1` markers per cell
+and 64-80 per array, all at the limit. The platform deck has since been
+corrected to 5 nm, and the reference project accepts only `GATE.2`. The DRC was
+re-run on the same `cell.gds` and `abutment.gds` with the corrected deck
+(`klayout -b`, `drc_mode=full`); the archived `*.lyrdb`, the DRC counts in
+`report.json` and `verification/decks/gt2n.lydrc` are from that re-run. No
+layout, LVS, SPICE or Liberty result changed.
 
 ## Experimental Liberty characterization
 

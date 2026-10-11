@@ -204,7 +204,7 @@ if full_mode
     sdcon.space(20.nm, projection).with_angle(0).output("SDCON.2", "SDCON.2 : Vertical spacing between SDCON >= 20 nm")
   end
   sdcon.dup.raw.non_rectangles.output("SDCON.3", "SDCON.3 : SDCON may not bend")
-  sdcon.enclosing(act, 10.nm, projection).with_angle(0).output("SDCON.ACT.1", "SDCON.ACT.1 : Vertical extension of SDCON past ACT >= 10 nm")
+  sdcon.enclosing(act, 5.nm, projection).with_angle(0).output("SDCON.ACT.1", "SDCON.ACT.1 : Vertical extension of SDCON past ACT >= 5 nm")
   sdcon.separation(gate, 6.nm, projection).with_angle(90).output("SDCON.GATE.1", "SDCON.GATE.1 : Horizontal spacing between SDCON and GATE >= 6 nm")
 
   vsd.drc(width(projection) != 13.nm).with_angle(90).output("VSD.1", "VSD.1 : Horizontal width of VSD = 13 nm")

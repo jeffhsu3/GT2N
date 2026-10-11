@@ -19,8 +19,7 @@
       "verification": {
         "cell": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 16
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_nand4_w31_lvt": true
@@ -28,8 +27,7 @@
         },
         "abutment": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 64
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_nand4_w31_lvt": true,
@@ -1022,8 +1020,7 @@
       "verification": {
         "cell": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 18
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_nor4_w31_lvt": true
@@ -1031,8 +1028,7 @@
         },
         "abutment": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 72
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_nor4_w31_lvt": true,
@@ -2025,8 +2021,7 @@
       "verification": {
         "cell": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 20
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_aoi221_w31_lvt": true
@@ -2034,8 +2029,7 @@
         },
         "abutment": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 80
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_aoi221_w31_lvt": true,
@@ -5622,8 +5616,7 @@
       "verification": {
         "cell": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 20
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_oai221_w31_lvt": true
@@ -5631,8 +5624,7 @@
         },
         "abutment": {
           "drc": {
-            "GATE.2": 2,
-            "SDCON.ACT.1": 80
+            "GATE.2": 2
           },
           "lvs": {
             "gt2_6t_oai221_w31_lvt": true,

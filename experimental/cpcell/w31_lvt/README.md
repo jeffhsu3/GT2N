@@ -18,8 +18,10 @@ names and does not replace the released libraries.
 ## Validation and limits
 
 All four cells pass transistor LVS individually and in mirrored 2 × 2 arrays.
-DRC retains `GATE.2` and `SDCON.ACT.1` findings; counts and full databases are
-under `verification/`. These checks do not claim zero DRC findings or signoff.
+DRC reports only `GATE.2`, two markers per cell and per array: the deck reads
+the spacing past the outermost gates as a gate space, though no gate faces them.
+Counts and full databases are under `verification/`. These checks do not claim
+zero DRC findings or signoff.
 All 96 static SPICE vectors and 900 propagation-delay measurements passed.
 OpenROAD loaded the LEF/Liberty and evaluated timing; Yosys linked the cells
 and checked the functional Verilog. The CPCell suite passed 41 tests and 66
@@ -49,8 +51,11 @@ PYTHONDONTWRITEBYTECODE=1 ../chipforge_gt2n/.venv/bin/python \
 
 Set `GT2N_ROOT` if the PDK is elsewhere. The helper flow expects the DRC deck
 at `Openroad_example/gt2n_openroad_run/OpenROAD-flow-scripts/flow/platforms/gt2n/gt2n.lydrc` within the PDK. This deck was present locally but untracked
-at the GT2N base revision; its exact contents are saved as
-`verification/decks/gt2n.lydrc`. In a fresh PDK checkout, provision that file
+at the GT2N base revision; the contents the archived results were checked with
+are saved as `verification/decks/gt2n.lydrc`. The DRC was first run with a copy
+that checked `SDCON.ACT.1` at 10 nm, where GT2N's runset asks 5 nm; it reported
+contacts that run exactly 5 nm past ACT. The results here are from a re-run with
+the corrected deck (see the generation notes). In a fresh PDK checkout, provision that file
 at the expected path before running the helper flow. The exact LVS deck is
 also archived. Both decks can be run directly with KLayout using `in_gds`,
 `topcell`, `report_file`, and (for LVS) `cdl_file`; DRC uses `drc_mode=full`.
