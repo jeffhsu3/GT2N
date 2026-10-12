@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "scope": "KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array, plus mixed inverter rows and rows ending in one-pitch tap/filler cells at 144 nm height; no ICV",
+  "cell": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2_6t_decapcc_sg_w31_elvt": true
+    }
+  },
+  "array": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2_6t_decapcc_sg_w31_elvt": true,
+      "gt2_6t_decapcc_sg_w31_elvt_array": true
+    }
+  },
+  "mixed": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2_6t_decapcc_sg_w31_elvt": true,
+      "gt2_6t_decapcc_sg_w31_elvt_mixed": true,
+      "gt2_6t_inv_x1_w31_elvt": true
+    }
+  },
+  "rowend": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2_6t_decapcc_sg_w31_elvt": true,
+      "gt2_6t_decapcc_sg_w31_elvt_rowend": true,
+      "gt2_6t_inv_x1_w31_elvt": true
+    }
+  },
+  "source_sha256": {
+    "/home/jeff/iv4/repos/CPCellUCSD/examples/gt2n_split_gate/verify.py": "3b1e899a907d69319933c676dc5f7070ca94a276a696eeb581c36fc5dcc16a1c",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w31_elvt.cdl": "0e0074266429d2bb66ca93a685a2ba779678209d9ca05d7b67d675edf24d2e7c",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_overlap.lydrc": "fe9e5ff1c5d8b4db5935850b5ecac7352bf8f1aef4243a7c1233fd9bbf210519",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_transistor.lylvs": "ed25e573049171e523145d973f03b0245ac0aeb7f626f5e77b169ad321f68b1b",
+    "/home/jeff/iv4/repos/GT2N/gds/gt2_6t_std_cells_w31_elvt.gds": "01d8e12a27933860f30390b9f1f7917907dee0247785186eded151a1a28af790",
+    "/home/jeff/iv4/repos/GT2N/gds/gt2_6t_std_cells_w13_elvt.gds": "ece8aaeb930fb85408923ab4d5b786b0d086208b0139377cc256b5d10b8c25f7",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w13_elvt.cdl": "231f960fdf066ce6f0f8c0e7fcd48572b2e69bc333d2e7ed3f126b83d5803721"
+  },
+  "artifact_sha256": {
+    "array_extracted.cdl": "c0b882aa07189a2ab688a569f5e150699a13ffd34e6ea0576974a2548927c8fb",
+    "cell.lef": "2ee8f997a067904ca986a679d0b1298197726bf098d175e107bbdd4812f4d912",
+    "mixed.lyrdb": "8607bcab2269d9fc254bc4c2bc40144d95ec28e24707214b6dd0569ac9914bc7",
+    "cell.lyrdb": "e87d55e69e7d0c932280c0c2964334ac918770e1edb3b8c75e95798341898456",
+    "rowend.lyrdb": "4f4402bdbf702d80b0d6b65acba2b42d27b396efd7fd02a86260cae63a9b4fc3",
+    "mixed_reference.cdl": "035b435ab81f23e44bc3a21e8d01092e56864fc97736ddf703d62bc8c7b668eb",
+    "mixed.gds": "8692aaea8a8639b2277f907a83a12add93401fe97ed8236a0b234abc7b861371",
+    "cell_extracted.cdl": "0677dc463eda7d267fb31b2b46d010872a7b039d6d2a04abc55b66abf9c48296",
+    "mixed.lvsdb": "09f80553e85cf4d73647c895dc5ed3458263f8116afc0cf37205b3ad002f5c02",
+    "array.lvsdb": "710ceb9519a5d3feaba28639ad784208edace1dcd9823cdab733fb3e08c41051",
+    "cell.cdl": "bdde67ddde64a007277c5df5292c964bc70c74919957d02128b7e3a0b8f5b5c7",
+    "mixed_extracted.cdl": "9bc0c7e120b871ee4002ee282371b402d0e419b81a1dba221dd7544d9fd04f9d",
+    "array_reference.cdl": "456325cc5b37da952340a0b200835429ee4e882548267672171353c5e66242d1",
+    "cell_reference.cdl": "14112564e64f0e64fd9761aeb165b046b6ff0f286a9b72e35528364b0ab76d8f",
+    "rowend_extracted.cdl": "ddfde2fedbdd81895f2284c9358ac421e99255164f3cb0bfb49e9e0c0f5ce85e",
+    "rowend_reference.cdl": "779705ff63ed4d34b93b27011cf56061b406ae3bf818cc67e413ac31f9a0173a",
+    "array.gds": "fbfe99457a47f3fb48d02e707b3c1655d43a019805f923f5013e66156f131be7",
+    "rowend.lvsdb": "670d149c8362a64113f7317a8f420bb58034f16aedf74933ee11169bba8da0bb",
+    "cell.lvsdb": "57041f5c3a9db6a2efcc27d3872d92c8df0bfcd5e765a2f996c0084b0897bc6a",
+    "rowend.gds": "ab959c3d73852eb69154cb776614058f0e2ed6de0e68b195c53ca68e022df796",
+    "cell.gds": "3457572e646c16005046c8337c1190aba78c8fe1f714bd068ebd83e1d1f9316d",
+    "array.lyrdb": "4437207fd449318576a4468894739ebe49f07986f7d305ed6af2b3582e903f87"
+  }
+}

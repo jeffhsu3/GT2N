@@ -1,0 +1,38 @@
+VERSION 5.8 ;
+BUSBITCHARS "[]" ;
+DIVIDERCHAR "/" ;
+MACRO gt2_6t_decapcc_sg_w31_lvt
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE gt2_6t ;
+    FOREIGN gt2_6t_decapcc_sg_w31_lvt 0 0 ;
+  SIZE 0.126 BY 0.144 ;
+  PIN vss
+    DIRECTION INOUT ;
+    USE GROUND ;
+    PORT
+      LAYER BPR ;
+        RECT 0 -0.016 0.126 0.016 ;
+    END
+  END vss
+  PIN vdd
+    DIRECTION INOUT ;
+    USE POWER ;
+    PORT
+      LAYER BPR ;
+        RECT 0 0.128 0.126 0.16 ;
+    END
+  END vdd
+  OBS
+    LAYER M0 ;
+      RECT 0.051 0.042 0.117 0.054 ;
+      RECT 0.009 0.066 0.054 0.078 ;
+      RECT 0.072 0.066 0.117 0.078 ;
+      RECT 0.009 0.09 0.075 0.102 ;
+    LAYER M1 ;
+      RECT 0.098 0.038 0.112 0.082 ;
+      RECT 0.014 0.062 0.028 0.106 ;
+  END
+END gt2_6t_decapcc_sg_w31_lvt
+END LIBRARY

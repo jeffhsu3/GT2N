@@ -1,0 +1,5 @@
+* Partial PEX: 3D M0/V0/M1/BPR Maxwell capacitance; GT2 dielectric interfaces; GATE/SDCON/BPR/M0/M1 sheet and VG/VSD/V0/VBPR contact resistance. BSIM-CMG supplies intrinsic/overlap/fringe device C. Additional FEOL, VG/VSD/VBPR C, diffusion spreading R, neighboring cells, and chip/package environment are not extracted. Far-field reference is tied to vss.
+.SUBCKT decap vdd vss
+M1 net7 net12 vss vss nmos_lvt L=0.014u
+M2 vdd net7 net12 vdd pmos_lvt L=0.014u
+.ENDS decap

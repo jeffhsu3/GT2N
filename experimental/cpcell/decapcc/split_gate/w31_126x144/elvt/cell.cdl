@@ -1,0 +1,4 @@
+.SUBCKT gt2_6t_decapcc_sg_w31_elvt vdd vss
+MN net7 net12 vss vss nmos_elvt W=0.031u L=0.014u M=1
+MP net12 net7 vdd vdd pmos_elvt W=0.031u L=0.014u M=1
+.ENDS gt2_6t_decapcc_sg_w31_elvt

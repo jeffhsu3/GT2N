@@ -1,0 +1,355 @@
+{
+  "status": "passed",
+  "scope": "KLayout full DRC and transistor LVS; no ICV or extracted RC",
+  "drc_options": {
+    "drc_mode": "full",
+    "drc_use_nets": 1
+  },
+  "footprint_nm": [
+    168,
+    144
+  ],
+  "flavors": {
+    "lvt": {
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_cp_w31_lvt": true
+        }
+      },
+      "abutment": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_abutment_lvt": true,
+          "gt2_6t_decapcc_cp_w31_lvt": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_mixed_lvt": true,
+          "gt2_6t_decapcc_cp_w31_lvt": true,
+          "gt2_6t_inv_x1_w31_lvt": true
+        }
+      }
+    },
+    "elvt": {
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_cp_w31_elvt": true
+        }
+      },
+      "abutment": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_abutment_elvt": true,
+          "gt2_6t_decapcc_cp_w31_elvt": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_mixed_elvt": true,
+          "gt2_6t_decapcc_cp_w31_elvt": true,
+          "gt2_6t_inv_x1_w31_elvt": true
+        }
+      }
+    },
+    "ulvt": {
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_cp_w31_ulvt": true
+        }
+      },
+      "abutment": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_abutment_ulvt": true,
+          "gt2_6t_decapcc_cp_w31_ulvt": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_mixed_ulvt": true,
+          "gt2_6t_decapcc_cp_w31_ulvt": true,
+          "gt2_6t_inv_x1_w31_ulvt": true
+        }
+      }
+    },
+    "svt": {
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_cp_w31_svt": true
+        }
+      },
+      "abutment": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_abutment_svt": true,
+          "gt2_6t_decapcc_cp_w31_svt": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_mixed_svt": true,
+          "gt2_6t_decapcc_cp_w31_svt": true,
+          "gt2_6t_inv_x1_w31_svt": true
+        }
+      }
+    },
+    "hvt": {
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_cp_w31_hvt": true
+        }
+      },
+      "abutment": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_abutment_hvt": true,
+          "gt2_6t_decapcc_cp_w31_hvt": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "decapcc_mixed_hvt": true,
+          "gt2_6t_decapcc_cp_w31_hvt": true,
+          "gt2_6t_inv_x1_w31_hvt": true
+        }
+      }
+    }
+  },
+  "library_compatibility": {
+    "lvt": {
+      "vbpr_contained_in_bpr_and_sdcon": true,
+      "vbpr_y_nm": [
+        [
+          5.0,
+          16.0
+        ],
+        [
+          128.0,
+          139.0
+        ]
+      ],
+      "m0_track_centers_nm": [
+        48.0,
+        72.0,
+        96.0
+      ],
+      "lef_class": "CORE"
+    },
+    "elvt": {
+      "vbpr_contained_in_bpr_and_sdcon": true,
+      "vbpr_y_nm": [
+        [
+          5.0,
+          16.0
+        ],
+        [
+          128.0,
+          139.0
+        ]
+      ],
+      "m0_track_centers_nm": [
+        48.0,
+        72.0,
+        96.0
+      ],
+      "lef_class": "CORE"
+    },
+    "ulvt": {
+      "vbpr_contained_in_bpr_and_sdcon": true,
+      "vbpr_y_nm": [
+        [
+          5.0,
+          16.0
+        ],
+        [
+          128.0,
+          139.0
+        ]
+      ],
+      "m0_track_centers_nm": [
+        48.0,
+        72.0,
+        96.0
+      ],
+      "lef_class": "CORE"
+    },
+    "svt": {
+      "vbpr_contained_in_bpr_and_sdcon": true,
+      "vbpr_y_nm": [
+        [
+          5.0,
+          16.0
+        ],
+        [
+          128.0,
+          139.0
+        ]
+      ],
+      "m0_track_centers_nm": [
+        48.0,
+        72.0,
+        96.0
+      ],
+      "lef_class": "CORE"
+    },
+    "hvt": {
+      "vbpr_contained_in_bpr_and_sdcon": true,
+      "vbpr_y_nm": [
+        [
+          5.0,
+          16.0
+        ],
+        [
+          128.0,
+          139.0
+        ]
+      ],
+      "m0_track_centers_nm": [
+        48.0,
+        72.0,
+        96.0
+      ],
+      "lef_class": "CORE"
+    }
+  },
+  "source_sha256": {
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_overlap.lydrc": "fe9e5ff1c5d8b4db5935850b5ecac7352bf8f1aef4243a7c1233fd9bbf210519",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_transistor.lylvs": "ed25e573049171e523145d973f03b0245ac0aeb7f626f5e77b169ad321f68b1b",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/verify.py": "aaa63fa4274ff5ba59da1e67de1ef3fafb502314f020b21c3f0585c18baad13a",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/reproduce.py": "f2f69e180cb7a8923f58e4f43ec266cb3e92af9fb7d6908645833e9286ec64cf",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w31_lvt.cdl": "a3560e464d335330977ca0f369a3b2429c25e223b0c68b9082a2e98040b44dc8",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w31_elvt.cdl": "0e0074266429d2bb66ca93a685a2ba779678209d9ca05d7b67d675edf24d2e7c",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w31_ulvt.cdl": "1b90729ba326f3f8f34f632069c51cb2a0b5867320530b12476f252a67e9e1c7",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w31_svt.cdl": "7f314c5a9e8126ef417874d8c37db430a101349edec5eab1f230b7f40d658071",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w31_hvt.cdl": "2dab7cb4fc607d392e7e42dc63e759c82eff2e598dd95852a987e689d609180d"
+  },
+  "artifact_sha256": {
+    "elvt/abutment.cdl": "6faa1456c0ee27a2f7aee968614bec07ba019634cdee1a98464cbb2344e37ccf",
+    "elvt/abutment.gds": "b07e91a8ba14c0bba27f76090da6c0e72afb771d812a027ed5e76e6f62d030c3",
+    "elvt/abutment.lvsdb": "46803d0d38cbd9c1abb306c8a832a560f512188ec99ec5e59feb4ab6ad570ebd",
+    "elvt/abutment.lyrdb": "6752711fcbb8bc00673b4f9dae10b92c01fe28d8046a0bed0f9246c671b19460",
+    "elvt/abutment_extracted.cdl": "7de3fb3618350576caa41a00a47616af54aa989cff765dbc2254b84afb7b5c28",
+    "elvt/cell.cdl": "3dca38216cc7ab8ea7a06a065763be1972f2413294a13f76a863dc339f8e7d9c",
+    "elvt/cell.gds": "e3cefc9b722033a9c78db682c47e3336e20e150430dc11eea7471d828f883fbf",
+    "elvt/cell.lef": "88267e71fb3a2fe49b267f4246542722ee203cf04bdd318fc4c47e7c36c2d6b3",
+    "elvt/cell.lvsdb": "3f09ad0f0ee54b000b0e63590985b7193746d9d77317d578c4a417c83a137ced",
+    "elvt/cell.lyrdb": "048663f48261023ab8477054cd530f1ed1707de7eecaad60a5fab10125ed4db2",
+    "elvt/cell_extracted.cdl": "058332746f8fa8bbd8bc34934a898c18b6b258546602f785995ad8d98a34d0dc",
+    "elvt/mixed.cdl": "42d50d3441993cdbc8fe17d0808fbf3cd47f36f9d373e50cee7f10f389cc3af3",
+    "elvt/mixed.gds": "3757a3e36784a91cef66250e9ba1c11faf72a700f7826cc02400f654eed84bb6",
+    "elvt/mixed.lvsdb": "ee8bf2a7364f7816b89ce7d135cd363cd7a6bf14f6d84c62348af3dc0b2c262e",
+    "elvt/mixed.lyrdb": "aaaa4fc8de5789686a4ac3882a3d9375e88563ce478c305e09d75ca5aae362a9",
+    "elvt/mixed_extracted.cdl": "36c87b7eea7ed967e31b14b7519fdf449bfca8aecc889a7e41dd5bfe6db61f36",
+    "elvt/reference.cdl": "0ed3588e83f738d1b5f3657e7c9b548f310d6100af99a629a00c151c72c5343d",
+    "hvt/abutment.cdl": "71a33f60105f9a4e89a6e8a9485efa35db8d921fc1221f365f2e736b110b9161",
+    "hvt/abutment.gds": "a8a1821ad1c7f18fe3d06623363ea223eb42ea5f4e19cae0482ac89826a1ab84",
+    "hvt/abutment.lvsdb": "6a1fa498e92d3c926e443fa5b1f1a5997101dead92ea81fd6a8c095688eaa10d",
+    "hvt/abutment.lyrdb": "53b6c22b648e7ab88faab463f66d40e399b42787b7c80793344abce33f74d7e9",
+    "hvt/abutment_extracted.cdl": "5cf51127e4afbfd7ee351f0e5178647fed7d0dcd0bd969d84d9176049dd43032",
+    "hvt/cell.cdl": "840a5b8da7e23e993b05a1fcae3a1262a7ce50734f273fb7d98f27d4cf887b20",
+    "hvt/cell.gds": "3cbf98e248821db43328dfb143856bd7911052a97b2dc894b4ca82aebbd2216b",
+    "hvt/cell.lef": "f72cd4d14f49d5884233753564f5b7635633a4b7736be17e7452c7f546597c00",
+    "hvt/cell.lvsdb": "401a790ac83204fac0d50671597a87f86853a542fd83ac51c6d8afd129252ae1",
+    "hvt/cell.lyrdb": "ac55b9fb674af0a5e068a7235b3e277affbcf4725117b88a272992415803b193",
+    "hvt/cell_extracted.cdl": "73bae9e5ed384308e45f869adf2c19b0c7425e31a627a3d1ffe049e8dc029c6d",
+    "hvt/mixed.cdl": "2bb7f69f183b786df0da418aba683fe72c29c623340c1acce091a0543f03aaa9",
+    "hvt/mixed.gds": "0a379b0e8ff0312d734113626e81d81ec6aa58b13d768197ff3ccc3bc830c92d",
+    "hvt/mixed.lvsdb": "9e9b63d73a255c7c79c2f37800c4966f9ccf5e0947fe94f8aab55bee7002ad53",
+    "hvt/mixed.lyrdb": "4e1fdb26cb93b4b72b5fe2ba4d160c6464ce754c8ec21998c145d55fb9a48fee",
+    "hvt/mixed_extracted.cdl": "c36446d2e2a7dad86ccc994441d141d16ce00799e6870968eaeba9374cc34b10",
+    "hvt/reference.cdl": "991ccdfdb5b2f2e5d617a942c32ee632e951c25b952d9702c34075e1edf22316",
+    "lvt/abutment.cdl": "75582c16b04f8e3533b1ea1acb1df4f1b5ed2325f2187907d837c3da2ea46560",
+    "lvt/abutment.gds": "38c9485a25638fe09f151f61642871e43d8cde19385d8d4744d8f02876928f97",
+    "lvt/abutment.lvsdb": "6983ce327da4559702dce5900d73230391c127b98e009dd317164a14d59bc2e7",
+    "lvt/abutment.lyrdb": "9f3fd6216cac5c94a60c3aae9ef9f5f6e1e1ca93e771d4230c11297d4f5ba1a9",
+    "lvt/abutment_extracted.cdl": "65c193d101f59d8628380419d25546ba2ae42359d709f6057f97b9aff19f4b70",
+    "lvt/cell.cdl": "7d6c1f5d68c05aa50cf91ad5570c24bec0fd787e92b9048b774ab1cd09cac9ae",
+    "lvt/cell.gds": "1732d2af8078250f25bed8e98293cb17e0b0f96970ffb3b6ffa78fccefc4548c",
+    "lvt/cell.lef": "92722b4ff8cf37208a1884fb263d45315a065fa2a2c9276fb4424693d6a25670",
+    "lvt/cell.lvsdb": "78700b0c9a34341e29342d1f08a4df6e8c05145ccc2aaa4b2bb965492057cf58",
+    "lvt/cell.lyrdb": "6e27eb0b3c7da4b5cd036abe834eac0b3fe6d2ea2a876ead20585e667602fab9",
+    "lvt/cell_extracted.cdl": "6d7e4461cf64b61c5008256ed0c11952b1c56d7ebd3f84500a8f34ff770c28f6",
+    "lvt/mixed.cdl": "3e423d5a21597a53dbe4732bc310fdfc6b9090d0cdd6eb3f53de3b1d13019198",
+    "lvt/mixed.gds": "7d6844b6a0c81ca849922758f68531d2bfc389dfdc42207e7521ab5ee94200cd",
+    "lvt/mixed.lvsdb": "7fb059ee28405ed7b6e6b5c2ff28206b70561bcdd062f6f61bd036dc671936ef",
+    "lvt/mixed.lyrdb": "f6e6afb2af76a6babf71393839f494b625572ef81493a7e9f7358c59b65cdf52",
+    "lvt/mixed_extracted.cdl": "d052e889203e199d2ddaa7a591958c330b26386dc4e54c756dd0bf0232f571b6",
+    "lvt/reference.cdl": "ca6de5c678f2ba3812e0f6e9e09847866f25e59f0331773127bef2201033b6eb",
+    "solution.json": "286573472ca7f2317b0bf38ee41df7e8d502c62ded144e5960deff90a38112af",
+    "svt/abutment.cdl": "86f6c5ede37fb5e0135b40f7e2256f2398a9745a87595767a44451ac80f5a1b7",
+    "svt/abutment.gds": "790b68fab6f73c306cf1c48669a9d306b3aa084b2af69a44167009ed20f70240",
+    "svt/abutment.lvsdb": "319c9d77b05256def0fc11e79ecc2b8433342796f0b7f895247b87e00ebbd2d9",
+    "svt/abutment.lyrdb": "a665c3d0a0fed18e45fa823462003f5f3d38c666f61fc12803224b0742b09cd3",
+    "svt/abutment_extracted.cdl": "ecf16546d2c0d9254eb8192218e36fedcfbaf2be2e3be1c84a39e6564f108d96",
+    "svt/cell.cdl": "ca2bff58292619a7e30874e2d5b050cafd0c604480f2a65d4794e3699af867fb",
+    "svt/cell.gds": "bb49f7776c93da8940988443cbd3a487ce50b60a0b0d42ccad8f58a8719fa3d3",
+    "svt/cell.lef": "4e9cbba09e4fc6f995c2f526fe6e9aca378d12f99a0e4879def04bbfec229ba5",
+    "svt/cell.lvsdb": "013ac83ac79166fb1011f1ac46b2b40ad89ad0168f9ab713c6bb955aecd1b442",
+    "svt/cell.lyrdb": "b01362b250a834247a899e117485fe6b66e070d0549dc314a410ff2e69d8535b",
+    "svt/cell_extracted.cdl": "1d7a16c67d03f055d2910b380b2d87497453a20770964508bb0467d7fd62763e",
+    "svt/mixed.cdl": "52bd23101198db7e640eab8b3707f6b809a741374041eb70acb9d426daef6a4f",
+    "svt/mixed.gds": "9ff664ecea4ee9a2dfea5c28bf3bba3ffdf39dba402f533f740c52887bf6dcae",
+    "svt/mixed.lvsdb": "838e9e68ae9148f13d45e6a5e46331cc57ea580750208fe184ae7bbe63122b97",
+    "svt/mixed.lyrdb": "8f107dad26bb10c0bfcc74f8e543b558021d09eb664e8e88d01170e5fe8e7a5c",
+    "svt/mixed_extracted.cdl": "2e785b1f435e312d77145e96772c60813bce792edc3767dff7ceb32dda0d72a1",
+    "svt/reference.cdl": "de97ec59cc9eb08c01788c3adb8917e8c8fbfb7793bd4603a895367c655c9ac0",
+    "ulvt/abutment.cdl": "694967e67565ba9803064b6214a093fc642baf15f5d53b52762b10beb9bf6c33",
+    "ulvt/abutment.gds": "b4073dcdce4eed9d2db0de5f85656a5b457c0f0d0633797059532cc24cbf5c5f",
+    "ulvt/abutment.lvsdb": "09ed229bfdf83e260213e52863a42eaa27ea02e3fe37efbedd7836682a4ecd1c",
+    "ulvt/abutment.lyrdb": "39229f37cc39dc4c850c58f27f8efe159cd70cbb3a263a855225537ab592bfd7",
+    "ulvt/abutment_extracted.cdl": "663330b1e587a5ccf84c0869568afb85301d25c965a447390c5c1c712cc87452",
+    "ulvt/cell.cdl": "9e1088e5f7809dadb887d98531ae941699314737a03f9f4e1ae436a8e92cc07a",
+    "ulvt/cell.gds": "8e687d78980555504e0e3ca47986f565da301eb715fe5bc11574ab0ae23084a8",
+    "ulvt/cell.lef": "6fa885710c79dd5fe8bc449b9e60669e456680e26ded8969765bbb0bfa11d3ee",
+    "ulvt/cell.lvsdb": "21bf9babe75ea04d163b8aa25eac2acd0901ea275e5be82cacee1784f9699c23",
+    "ulvt/cell.lyrdb": "0c658d5855224ed5d4050b6e55288166c7bceff284963190a7bedf30f2782c86",
+    "ulvt/cell_extracted.cdl": "93aefa607fb7613a31b7be29c57fa4502f75e63218a4c7ad9d4199af2f7d2c10",
+    "ulvt/mixed.cdl": "290ed25eb5981b468c2e9f3cc125cf83e5cdf00c06a2882a100f80641bdb84d3",
+    "ulvt/mixed.gds": "91f3597b7e50bc566fd4407a0ab0ee141282bb4db54e7b1c4ec4916183fd55e4",
+    "ulvt/mixed.lvsdb": "0a49e3bbae68068ea6c00aacbcd47be487041a297f409d43db9c921276d7cbbe",
+    "ulvt/mixed.lyrdb": "8c406fdfd6be4a2384310a0564c794b9bdaea8a59b2eb2058123dffaadc202f4",
+    "ulvt/mixed_extracted.cdl": "a239f9378600dc11bd699ff33b50be9fde2adeaaac6601fb780d91b5f213f4d7",
+    "ulvt/reference.cdl": "8a8b51d6996a606878f0a4835926014b568cabe5913aa23c6f493dd63838c20c"
+  }
+}

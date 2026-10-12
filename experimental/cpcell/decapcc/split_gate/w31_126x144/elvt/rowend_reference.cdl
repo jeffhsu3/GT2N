@@ -1,0 +1,49 @@
+.subckt gt2_6t_decapcc_sg_w31_elvt vdd vss
+*.PININFO vdd:B vss:B
+MM1 net7 net12 vss vss nmos_elvt W=0.031u L=0.014u M=1
+MM0 net12 net7 vdd vdd pmos_elvt W=0.031u L=0.014u M=1
+.ends gt2_6t_decapcc_sg_w31_elvt
+
+
+.subckt gt2_6t_inv_x1_w31_elvt A Y vdd vss
+*.PININFO A:I Y:O vdd:B vss:B
+MM0 Y A vdd vdd pmos_elvt W=0.031u L=0.014u M=1
+MM1 Y A vss vss nmos_elvt W=0.031u L=0.014u M=1
+.ends gt2_6t_inv_x1_w31_elvt
+
+
+.subckt gt2_6t_tapbspdn_w13_elvt vdd vss
+.ends gt2_6t_tapbspdn_w13_elvt
+
+
+.subckt gt2_6t_filler_w13_elvt vdd vss
+.ends gt2_6t_filler_w13_elvt
+
+
+
+.SUBCKT gt2_6t_decapcc_sg_w31_elvt_rowend A_4_0 Y_4_0 A_4_1 Y_4_1 A_4_2 Y_4_2 vdd vss
+X00  vdd vss gt2_6t_tapbspdn_w13_elvt
+X10  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X20  vdd vss gt2_6t_filler_w13_elvt
+X30  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X40 A_4_0 Y_4_0 vdd vss gt2_6t_inv_x1_w31_elvt
+X50  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X60  vdd vss gt2_6t_filler_w13_elvt
+X70  vdd vss gt2_6t_tapbspdn_w13_elvt
+X01  vdd vss gt2_6t_tapbspdn_w13_elvt
+X11  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X21  vdd vss gt2_6t_filler_w13_elvt
+X31  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X41 A_4_1 Y_4_1 vdd vss gt2_6t_inv_x1_w31_elvt
+X51  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X61  vdd vss gt2_6t_filler_w13_elvt
+X71  vdd vss gt2_6t_tapbspdn_w13_elvt
+X02  vdd vss gt2_6t_tapbspdn_w13_elvt
+X12  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X22  vdd vss gt2_6t_filler_w13_elvt
+X32  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X42 A_4_2 Y_4_2 vdd vss gt2_6t_inv_x1_w31_elvt
+X52  vdd vss gt2_6t_decapcc_sg_w31_elvt
+X62  vdd vss gt2_6t_filler_w13_elvt
+X72  vdd vss gt2_6t_tapbspdn_w13_elvt
+.ENDS gt2_6t_decapcc_sg_w31_elvt_rowend

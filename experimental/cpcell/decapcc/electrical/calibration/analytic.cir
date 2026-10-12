@@ -1,0 +1,12 @@
+Analytic 1fF / 1kohm RC and 1T leakage measurement control
+VDD supply 0 DC 0.7 AC 1
+Rseries supply plate 1000
+Cknown plate 0 1f
+Rleak supply 0 1e12
+.OPTIONS DEVICE TEMP=25
+.OPTIONS NONLIN ABSTOL=1e-18 RHSTOL=1e-17
+.OP
+.AC DEC 10 1e6 1e12
+.PRINT AC FORMAT=CSV PRECISION=15 IR(VDD) II(VDD)
+.PRINT AC_IC FORMAT=CSV PRECISION=15 I(VDD)
+.END

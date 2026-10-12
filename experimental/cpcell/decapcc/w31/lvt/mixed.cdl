@@ -1,0 +1,25 @@
+.subckt gt2_6t_decapcc_cp_w31_lvt vdd vss
+*.PININFO vdd:B vss:B
+MM1 net7 net12 vss vss nmos_lvt W=0.031u L=0.014u M=1
+MM0 net12 net7 vdd vdd pmos_lvt W=0.031u L=0.014u M=1
+.ends gt2_6t_decapcc_cp_w31_lvt
+
+
+.subckt gt2_6t_inv_x1_w31_lvt A Y vdd vss
+*.PININFO A:I Y:O vdd:B vss:B
+MM0 Y A vdd vdd pmos_lvt W=0.031u L=0.014u M=1
+MM1 Y A vss vss nmos_lvt W=0.031u L=0.014u M=1
+.ends gt2_6t_inv_x1_w31_lvt
+
+
+.SUBCKT decapcc_mixed_lvt A_0_0 Y_0_0 A_2_0 Y_2_0 A_0_1 Y_0_1 A_2_1 Y_2_1 A_0_2 Y_0_2 A_2_2 Y_2_2 vdd vss
+X00 A_0_0 Y_0_0 vdd vss gt2_6t_inv_x1_w31_lvt
+X10  vdd vss gt2_6t_decapcc_cp_w31_lvt
+X20 A_2_0 Y_2_0 vdd vss gt2_6t_inv_x1_w31_lvt
+X01 A_0_1 Y_0_1 vdd vss gt2_6t_inv_x1_w31_lvt
+X11  vdd vss gt2_6t_decapcc_cp_w31_lvt
+X21 A_2_1 Y_2_1 vdd vss gt2_6t_inv_x1_w31_lvt
+X02 A_0_2 Y_0_2 vdd vss gt2_6t_inv_x1_w31_lvt
+X12  vdd vss gt2_6t_decapcc_cp_w31_lvt
+X22 A_2_2 Y_2_2 vdd vss gt2_6t_inv_x1_w31_lvt
+.ENDS decapcc_mixed_lvt

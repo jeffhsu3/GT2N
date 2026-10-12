@@ -1,0 +1,37 @@
+{
+  "status": "installed",
+  "tests": {
+    "related_suite_passed": 52,
+    "related_suite": "tests/test_gt2n_split_gate.py tests/test_band_matching.py tests/test_constraints.py tests/test_gt2n_thin.py tests/test_unequal_rows.py",
+    "split_gate_suite_passed": 28
+  },
+  "files_sha256": {
+    "cpcell/core/band_router.py": "20a521d3815d947cf40b5b5f3b31cdd29bc87fd4d90fcf9604d3917447ebf178",
+    "cpcell/tech/gt2n_split_gate.py": "5ea781632a75cd78d4a73971a1089206c3fdf7f71467667652238ae4b2a2bf26",
+    "cpcell/gds/gds_GT2N_split_gate.py": "0ca096c5c9a3eea82d420203cf7bc9207c28b731cf7252bdbc75a0415a420922",
+    "examples/gt2n_split_gate/reproduce.py": "d27d0db55a9b8e6c501535dff86098f178f1918a83b4d93b3f212778c7296a2b",
+    "examples/gt2n_split_gate/verify.py": "3b1e899a907d69319933c676dc5f7070ca94a276a696eeb581c36fc5dcc16a1c",
+    "examples/gt2n_split_gate/README.md": "3fc5c380a91d94358c52d0343dc9a08076dc9aeec326b728b2327f49d2e3e7e6",
+    "docs/gt2n_split_gate.md": "dd7a3f539ad4428c85bb7f10e906450c8bafa2ffd070a632f5e1d29ee21efab3",
+    "tests/test_gt2n_split_gate.py": "209342e7a4a53e65b285458c719bbbacfe63526e99194bd78e4cda9805e9dfaa"
+  },
+  "repository": "/home/jeff/iv4/repos/CPCellUCSD",
+  "patches": [
+    "cpcell-split-gate.patch",
+    "cpcell-staggered-update.patch",
+    "cpcell-library-conventions.patch"
+  ],
+  "physical_verification": {
+    "w31_126x144": {
+      "flavors": 5,
+      "contexts": [
+        "cell",
+        "array",
+        "mixed",
+        "rowend"
+      ],
+      "lvs_cases_passed": 20,
+      "drc_cases_with_only_verified_outer_gate_edges": 20
+    }
+  }
+}

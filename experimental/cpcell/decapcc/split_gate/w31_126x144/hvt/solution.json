@@ -1,0 +1,280 @@
+{
+  "format": "cpcell.split_gate.v1",
+  "design": {
+    "name": "gt2_6t_decapcc_sg_w31_hvt",
+    "arrangement": "staggered",
+    "n_width_nm": 31,
+    "p_width_nm": 31,
+    "height_nm": 144,
+    "vt": "hvt",
+    "n_flip": false,
+    "p_flip": true,
+    "cut_center_nm": 72.0,
+    "m0_tracks_nm": [
+      24,
+      48,
+      72,
+      96,
+      120
+    ]
+  },
+  "width_nm": 126,
+  "height_nm": 144,
+  "scope": "Fixed staggered decap placement, explicit tracks, M0/M1/M2 candidates and mirrored boundary clearance; not a global width proof",
+  "access": [
+    {
+      "terminal": "drain_n",
+      "net": "net7",
+      "layer": "VSD",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "drain_p",
+      "net": "net12",
+      "layer": "VSD",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "gate_n",
+      "net": "net12",
+      "layer": "VG",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "touches_gate_cut_or_dummy",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "touches_gate_cut_or_dummy",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "gate_p",
+      "net": "net7",
+      "layer": "VG",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "touches_gate_cut_or_dummy",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "touches_gate_cut_or_dummy",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        }
+      ]
+    }
+  ],
+  "blocked_terminals": [],
+  "status": "OPTIMAL",
+  "wall_time": 0.036443066,
+  "objective": 1148.0,
+  "routes": [
+    {
+      "net": "net12",
+      "edge": 8
+    },
+    {
+      "net": "net12",
+      "edge": 12
+    },
+    {
+      "net": "net12",
+      "edge": 13
+    },
+    {
+      "net": "net12",
+      "edge": 42
+    },
+    {
+      "net": "net12",
+      "edge": 48
+    },
+    {
+      "net": "net12",
+      "edge": 50
+    },
+    {
+      "net": "net12",
+      "edge": 83
+    },
+    {
+      "net": "net12",
+      "edge": 84
+    },
+    {
+      "net": "net7",
+      "edge": 6
+    },
+    {
+      "net": "net7",
+      "edge": 7
+    },
+    {
+      "net": "net7",
+      "edge": 11
+    },
+    {
+      "net": "net7",
+      "edge": 69
+    },
+    {
+      "net": "net7",
+      "edge": 74
+    },
+    {
+      "net": "net7",
+      "edge": 76
+    },
+    {
+      "net": "net7",
+      "edge": 82
+    },
+    {
+      "net": "net7",
+      "edge": 85
+    }
+  ],
+  "route_metrics": {
+    "net12": {
+      "M0_length": 126,
+      "M1_length": 48,
+      "V0_count": 2,
+      "VSD_count": 1,
+      "VG_count": 1
+    },
+    "net7": {
+      "M0_length": 126,
+      "M1_length": 48,
+      "V0_count": 2,
+      "VSD_count": 1,
+      "VG_count": 1
+    }
+  }
+}

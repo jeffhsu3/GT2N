@@ -1,0 +1,1134 @@
+diff --git a/cpcell/core/band_router.py b/cpcell/core/band_router.py
+--- a/cpcell/core/band_router.py
++++ b/cpcell/core/band_router.py
+@@ -7,6 +7,7 @@
+ 
+ from dataclasses import dataclass
+ from itertools import combinations
++import math
+ 
+ import networkx as nx
+ from ortools.sat.python import cp_model
+@@ -251,13 +252,30 @@
+                         self.model.Add(self.used[net, a] + self.used[other, b] <= 1)
+ 
+     def solve(self, seconds=30):
++        result = self.solve_result(seconds)
++        if result["status"] not in ("OPTIMAL", "FEASIBLE"):
++            raise ValueError(f"Fixed-band routing failed: {result['status']}")
++        return result
++
++    def solve_result(self, seconds=30):
++        """Return FEASIBLE/OPTIMAL, INFEASIBLE, or UNKNOWN without conflating them.
++
++        Infeasibility applies only to this candidate graph and its constraints.
++        Unsuccessful results deliberately contain no routes or objective.
++        The existing solve() API continues to raise when no solution is found.
++        """
++        if not math.isfinite(seconds) or seconds <= 0:
++            raise ValueError("Solver timeout must be finite and positive")
+         solver = cp_model.CpSolver()
+         solver.parameters.max_time_in_seconds = seconds
+         solver.parameters.num_search_workers = 1
+         solver.parameters.random_seed = 32
+         status = solver.Solve(self.model)
++        result = {"status": solver.StatusName(status), "wall_time": solver.WallTime()}
++        if status == cp_model.MODEL_INVALID:
++            raise ValueError(f"Invalid routing model: {solver.ResponseStats()}")
+         if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+-            raise ValueError(f"Fixed-band routing failed: {solver.StatusName(status)}")
++            return result
+         routes = [
+             {"net": net, "edge": i}
+             for (net, i), var in self.used.items()
+@@ -265,9 +283,8 @@
+         ]
+         self.validate(routes)
+         return {
+-            "status": solver.StatusName(status),
++            **result,
+             "objective": solver.ObjectiveValue(),
+-            "wall_time": solver.WallTime(),
+             "routes": routes,
+             "route_metrics": self.route_metrics(routes),
+         }
+diff --git a/cpcell/tech/gt2n_split_gate.py b/cpcell/tech/gt2n_split_gate.py
+new file mode 100644
+--- /dev/null
++++ b/cpcell/tech/gt2n_split_gate.py
+@@ -0,0 +1,329 @@
++"""GT2N cross-coupled N/P pair with independently contacted split gates.
++
++This is an explicit 84 nm placement profile, not a general analog placer.
++Its feasibility result covers the supplied frame, track list and routing graph.
++"""
++
++from collections import defaultdict
++from copy import deepcopy
++from itertools import pairwise
++import math
++import re
++
++import klayout.db as db
++
++from cpcell.core.band_router import BandRouter, RouteEdge
++from cpcell.tech.gt2n_thin import box, region
++
++
++FLAVORS = ("lvt", "elvt", "ulvt", "svt", "hvt")
++SPACING = {
++    "M0": dict(horizontal=34, vertical=24, corner=30),
++    "M1": dict(horizontal=28, vertical=40, corner=32),
++    "M2": dict(horizontal=34, vertical=24, corner=30),
++    "V0": 28,
++    "V1": 28,
++    # Contact separation is already constrained by the enclosing M0 pads.
++    # GT2's VG.6 is a placeholder, not an additional 14 nm spacing rule.
++    "VG": 0,
++    "VSD": 0,
++}
++
++
++def default_design(sheet_width_nm=31, height_nm=144, vt="lvt"):
++    return dict(
++        name=f"gt2n_split_decap_w{sheet_width_nm}_h{height_nm}_{vt}",
++        n_width_nm=sheet_width_nm,
++        p_width_nm=sheet_width_nm,
++        height_nm=height_nm,
++        vt=vt,
++        n_flip=False,
++        p_flip=False,
++        cut_center_nm=height_nm / 2,
++        m0_tracks_nm=list(range(24, height_nm, 24)),
++    )
++
++
++def node(layer, x, y):
++    return (layer, int(2 * y), int(2 * x))
++
++
++class SplitGateDecapProblem:
++    width = 84
++
++    def __init__(self, design=None):
++        self.design = deepcopy(default_design() if design is None else design)
++        d = self.design
++        if set(d) != set(default_design()):
++            raise ValueError("Unknown or missing split-gate design fields")
++        if not isinstance(d["name"], str) or not re.fullmatch(
++            r"[A-Za-z_][A-Za-z0-9_]{0,63}", d["name"]
++        ):
++            raise ValueError("Invalid split-gate cell name")
++        if any(
++            type(d[k]) is not int or d[k] not in (13, 31)
++            for k in ("n_width_nm", "p_width_nm")
++        ):
++            raise ValueError("Sheet widths must be 13 or 31 nm")
++        if (
++            type(d["height_nm"]) is not int
++            or d["height_nm"] < 144
++            or d["height_nm"] % 24
++        ):
++            raise ValueError("Height must be a multiple of 24 nm and at least 144 nm")
++        if d["vt"] not in FLAVORS or any(
++            type(d[k]) is not bool for k in ("n_flip", "p_flip")
++        ):
++            raise ValueError("Invalid threshold flavor or diffusion orientation")
++        self.name, self.height = d["name"], d["height_nm"]
++        tracks = d["m0_tracks_nm"]
++        if not isinstance(tracks, list) or not tracks:
++            raise ValueError("At least one explicit M0 track is required")
++        values = [*tracks, d["cut_center_nm"]]
++        if any(
++            type(v) not in (int, float) or not math.isfinite(v) or 2 * v != int(2 * v)
++            for v in values
++        ):
++            raise ValueError("Tracks and gate cut must use finite half-nm coordinates")
++        if tracks != sorted(set(tracks)) or any(
++            y < 12 or y > self.height - 12 for y in tracks
++        ):
++            raise ValueError(
++                "M0 tracks must be sorted, unique, and inside the footprint"
++            )
++        self.rows = tracks
++        self.bands = [
++            (41.5 - d["n_width_nm"] / 2, 41.5 + d["n_width_nm"] / 2),
++            (
++                self.height - 41.5 - d["p_width_nm"] / 2,
++                self.height - 41.5 + d["p_width_nm"] / 2,
++            ),
++        ]
++        self.cut = (d["cut_center_nm"] - 5, d["cut_center_nm"] + 5)
++        if self.cut[0] - self.bands[0][1] < 10 or self.bands[1][0] - self.cut[1] < 10:
++            raise ValueError("Gate cut must clear both ACT bands by at least 10 nm")
++        self.frame, self.edges, self.intrinsic = [], [], []
++        self.terminals = defaultdict(list)
++        self.access = []
++        self._frame()
++        self._conductors()
++        self._grid()
++        self._contacts()
++        self.router = BandRouter(self.edges, dict(self.terminals), {}, spacing=SPACING)
++        # A via-only M1 landing is 20 nm long. Require an adjoining M1 segment
++        # so every selected M1 conductor meets the 28 nm minimum length.
++        for (net, i), used in self.router.used.items():
++            edge = self.edges[i]
++            if any(s.layer in ("V0", "V1") for s in edge.shapes):
++                landing = edge.u if edge.u[0] == 2 else edge.v
++                adjacent = [
++                    self.router.used[net, j]
++                    for j, e in enumerate(self.edges)
++                    if (net, j) in self.router.used
++                    and e.u[0] == e.v[0] == 2
++                    and landing in (e.u, e.v)
++                ]
++                self.router.model.Add(used <= sum(adjacent))
++
++    def _frame(self):
++        def add(layer, *coords):
++            self.frame.append(box(layer, *coords))
++
++        h = self.height
++        add("BOUNDARY", 0, 0, 84, h)
++        add("NSEL", 0, 0, 84, h / 2)
++        add("PSEL", 0, h / 2, 84, h)
++        add("NWELL", 0, h / 2, 84, h)
++        for x in (0, 42, 84):
++            add("GATE", x - 7, 0, x + 7, h)
++            if x != 42:
++                add("DUMMY", x - 7, 0, x + 7, h)
++        for y in (0, h):
++            add("BPR", 0, y - 16, 84, y + 16)
++            add("GCUT", -7, y - 5, 91, y + 5)
++        add("GCUT", -7, self.cut[0], 91, self.cut[1])
++        for lo, hi in self.bands:
++            add("ACT", 0, lo, 84, hi)
++        if self.design["vt"] != "lvt":
++            add(self.design["vt"].upper(), 0, 0, 84, h)
++        for kind, band in enumerate(self.bands):
++            source = 63 if self.design["p_flip" if kind else "n_flip"] else 21
++            drain = 84 - source
++            lo, hi = band
++            # Keep the released 41 nm drain contact length for W13 and W31.
++            clo, chi = (21, 62) if kind == 0 else (h - 62, h - 21)
++            slo, shi = (5, chi) if kind == 0 else (clo, h - 5)
++            via0, via1 = (5, 16) if kind == 0 else (h - 16, h - 5)
++            add("SDCON", source - 8, slo, source + 8, shi)
++            add("VBPR", source - 8, via0, source + 8, via1)
++            shape = box("SDCON", drain - 8, clo, drain + 8, chi)
++            self.frame.append(shape)
++            self._terminal(
++                "drain_p" if kind else "drain_n",
++                "net12" if kind else "net7",
++                "VSD",
++                db.Region(db.Box(*shape.box)),
++                drain,
++            )
++
++    def _terminal(self, name, net, layer, conductor, x):
++        terminal = ("T", name)
++        self.terminals[net].append(terminal)
++        self.intrinsic.append((terminal, net, layer, conductor, x))
++
++    def _conductors(self):
++        # Derive actual electrical gate segments. Geometric x-alignment alone
++        # must never merge N/P gates separated by a cut.
++        gates = (
++            region(self.frame, "GATE")
++            - region(self.frame, "GCUT")
++            - region(self.frame, "DUMMY")
++        )
++        assigned = set()
++        for polygon in gates.merged().each():
++            devices = [
++                i
++                for i, band in enumerate(self.bands)
++                if polygon.inside(db.Point(84, int(sum(band))))
++            ]
++            if len(devices) > 1:
++                raise ValueError("Gate cuts leave different gate nets shorted")
++            if devices:
++                kind = devices[0]
++                assigned.add(kind)
++                self._terminal(
++                    "gate_p" if kind else "gate_n",
++                    "net7" if kind else "net12",
++                    "VG",
++                    db.Region(polygon),
++                    42,
++                )
++        if assigned != {0, 1}:
++            raise ValueError("Missing split-gate transistor segment")
++
++    def _edge(self, u, v, shapes, cost, owner=None):
++        # Routing metals stay inside the cell and retain enough clearance for
++        # reflected copies on every boundary; rail shapes may straddle it.
++        for s in shapes:
++            x0, y0, x1, y1 = s.box
++            if s.layer in ("M0", "M2") and (
++                x0 < 17 or x1 > 151 or y0 < 12 or y1 > 2 * self.height - 12
++            ):
++                return
++            if s.layer == "M1" and (
++                x0 < 14 or x1 > 154 or y0 < 20 or y1 > 2 * self.height - 20
++            ):
++                return
++        self.edges.append(RouteEdge(u, v, tuple(shapes), int(cost), owner))
++
++    def _grid(self):
++        for layer, metal in ((1, "M0"), (3, "M2")):
++            for y in self.rows:
++                for a, b in pairwise((21, 42, 63)):
++                    self._edge(
++                        node(layer, a, y),
++                        node(layer, b, y),
++                        [box(metal, a - 12, y - 6, b + 12, y + 6)],
++                        2 * (b - a),
++                    )
++        for x in (21, 63):
++            for a, b in pairwise(self.rows):
++                if b - a >= 8:
++                    self._edge(
++                        node(2, x, a),
++                        node(2, x, b),
++                        [box("M1", x - 7, a - 10, x + 7, b + 10)],
++                        2 * (b - a),
++                    )
++            for y in self.rows:
++                for layer, metal, via in ((1, "M0", "V0"), (3, "M2", "V1")):
++                    self._edge(
++                        node(layer, x, y),
++                        node(2, x, y),
++                        [
++                            box(via, x - 7, y - 6, x + 7, y + 6),
++                            box(metal, x - 12, y - 6, x + 12, y + 6),
++                            box("M1", x - 7, y - 10, x + 7, y + 10),
++                        ],
++                        100,
++                    )
++
++    def _contacts(self):
++        act = region(self.frame, "ACT")
++        forbidden = region(self.frame, "GCUT") + region(self.frame, "DUMMY")
++        for terminal, net, layer, conductor, x in self.intrinsic:
++            candidates = []
++            for y in self.rows:
++                half = 7 if layer == "VG" else 6.5
++                shape = box(layer, x - half, y - 6, x + half, y + 6)
++                via = db.Region(db.Box(*shape.box))
++                reasons = []
++                if not (via - conductor).is_empty():
++                    reasons.append("outside_conductor")
++                if layer == "VG":
++                    if not via.interacting(forbidden).is_empty():
++                        reasons.append("touches_gate_cut_or_dummy")
++                    if (
++                        not (via.sized(0, 12, 2) & act).is_empty()
++                        or not via.interacting(act).is_empty()
++                    ):
++                        reasons.append("VG_ACT_clearance_below_6nm")
++                before = len(self.edges)
++                if not reasons:
++                    self._edge(
++                        terminal,
++                        node(1, x, y),
++                        [shape, box("M0", x - 12, y - 6, x + 12, y + 6)],
++                        100,
++                        net,
++                    )
++                    if len(self.edges) == before:
++                        reasons.append("boundary_clearance")
++                candidates.append(
++                    dict(y_nm=y, allowed=not reasons, rejected_by=reasons)
++                )
++            self.access.append(
++                dict(terminal=terminal[1], net=net, layer=layer, candidates=candidates)
++            )
++        # Empty access sets are retained as terminals, not silently dropped.
++        # Flow conservation then produces a genuine CP-SAT INFEASIBLE result.
++
++    def solve(self, seconds=30):
++        result = self.router.solve_result(seconds)
++        return dict(
++            format="cpcell.split_gate.v1",
++            design=deepcopy(self.design),
++            width_nm=self.width,
++            height_nm=self.height,
++            scope="Fixed split-gate decap placement, explicit tracks, M0/M1/M2 candidates and mirrored boundary clearance; not a global width proof",
++            access=deepcopy(self.access),
++            blocked_terminals=[
++                a["terminal"]
++                for a in self.access
++                if not any(c["allowed"] for c in a["candidates"])
++            ],
++            **result,
++        )
++
++    def validate(self, routes):
++        self.router.validate(routes)
++        for route in routes:
++            e = self.edges[route["edge"]]
++            if any(s.layer in ("V0", "V1") for s in e.shapes):
++                landing = e.u if e.u[0] == 2 else e.v
++                if not any(
++                    r["net"] == route["net"]
++                    and self.edges[r["edge"]].u[0] == self.edges[r["edge"]].v[0] == 2
++                    and landing in (self.edges[r["edge"]].u, self.edges[r["edge"]].v)
++                    for r in routes
++                ):
++                    raise ValueError("M1 via landing requires a wire segment")
++
++    def schematic(self):
++        vt = self.design["vt"]
++        return (
++            f".SUBCKT {self.name} vdd vss\n"
++            f"MN net7 net12 vss vss nmos_{vt} W={self.design['n_width_nm'] / 1000:g}u L=0.014u M=1\n"
++            f"MP net12 net7 vdd vdd pmos_{vt} W={self.design['p_width_nm'] / 1000:g}u L=0.014u M=1\n"
++            f".ENDS {self.name}\n"
++        )
+diff --git a/cpcell/gds/gds_GT2N_split_gate.py b/cpcell/gds/gds_GT2N_split_gate.py
+new file mode 100644
+--- /dev/null
++++ b/cpcell/gds/gds_GT2N_split_gate.py
+@@ -0,0 +1,93 @@
++"""Export feasible split-gate decaps, preserving separate N/P gate conductors."""
++
++from pathlib import Path
++
++import klayout.db as db
++
++from cpcell.gds.gds_GT2N_SH import LAYERS
++from cpcell.tech.gt2n_split_gate import SplitGateDecapProblem
++
++
++def export_split_gate(solution, filename):
++    if solution.get("format") != "cpcell.split_gate.v1":
++        raise ValueError("Expected a CPCell split-gate solution")
++    if solution.get("status") not in ("OPTIMAL", "FEASIBLE"):
++        raise ValueError("Cannot export an infeasible or unproven split-gate result")
++    problem = SplitGateDecapProblem(solution["design"])
++    if (solution["width_nm"], solution["height_nm"]) != (problem.width, problem.height):
++        raise ValueError("Split-gate solution dimensions disagree")
++    problem.validate(solution["routes"])
++    layout = db.Layout()
++    layout.dbu = 0.0005
++    cell = layout.create_cell(problem.name)
++    shapes = list(problem.frame)
++    for route in solution["routes"]:
++        shapes.extend(problem.edges[route["edge"]].shapes)
++    for shape in shapes:
++        datatype = 250 if shape.layer == "BOUNDARY" else 0
++        cell.shapes(layout.layer(LAYERS[shape.layer], datatype)).insert(
++            db.Box(*shape.box)
++        )
++    for y, net in ((0, "vss"), (problem.height, "vdd")):
++        dest = cell.shapes(layout.layer(LAYERS["BPR"], 251))
++        dest.insert(db.Box(0, 2 * y - 32, 2 * problem.width, 2 * y + 32))
++        dest.insert(db.Text(net, db.Trans(problem.width, 2 * y)))
++    for index in layout.layer_indexes():
++        if layout.get_info(index).datatype == 0:
++            dest = cell.shapes(index)
++            merged = db.Region(dest).merged()
++            dest.clear()
++            dest.insert(merged)
++    filename = Path(filename)
++    filename.parent.mkdir(parents=True, exist_ok=True)
++    layout.write(str(filename))
++    return layout
++
++
++def write_lef(solution, layout, filename):
++    problem = SplitGateDecapProblem(solution["design"])
++    problem.validate(solution["routes"])
++    cell = layout.cell(problem.name)
++    lines = [
++        "VERSION 5.8 ;",
++        'BUSBITCHARS "[]" ;',
++        'DIVIDERCHAR "/" ;',
++        f"MACRO {problem.name}",
++        "  CLASS CORE ;",
++        "  ORIGIN 0 0 ;",
++        "  SYMMETRY X Y ;",
++    ]
++    # Taller cases are feasibility controls, not drop-in 6T library cells.
++    if problem.height == 144:
++        lines.append("  SITE gt2_6t ;")
++    lines.append(f"  SIZE 0.084 BY {problem.height / 1000:g} ;")
++    for y, net, use in ((0, "vss", "GROUND"), (problem.height, "vdd", "POWER")):
++        lines += [
++            f"  PIN {net}",
++            "    DIRECTION INOUT ;",
++            f"    USE {use} ;",
++            "    PORT",
++            "      LAYER BPR ;",
++            f"        RECT 0 {(y - 16) / 1000:g} 0.084 {(y + 16) / 1000:g} ;",
++            "    END",
++            f"  END {net}",
++        ]
++    lines.append("  OBS")
++    for layer in ("M0", "M1", "M2"):
++        polygons = db.Region(cell.shapes(layout.layer(LAYERS[layer], 0))).merged()
++        if polygons.is_empty():
++            continue
++        lines.append(f"    LAYER {layer} ;")
++        for p in polygons.each():
++            b = p.bbox()
++            if p.area() != b.area():
++                raise ValueError("Non-rectangular split-gate LEF obstruction")
++            lines.append(
++                "      RECT "
++                + " ".join(
++                    f"{v * layout.dbu:g}" for v in (b.left, b.bottom, b.right, b.top)
++                )
++                + " ;"
++            )
++    lines += ["  END", f"END {problem.name}", "END LIBRARY", ""]
++    Path(filename).write_text("\n".join(lines))
+diff --git a/examples/gt2n_split_gate/reproduce.py b/examples/gt2n_split_gate/reproduce.py
+new file mode 100644
+--- /dev/null
++++ b/examples/gt2n_split_gate/reproduce.py
+@@ -0,0 +1,103 @@
++"""Solve/export a split-gate GT2N decap or report scoped infeasibility."""
++
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import sys
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT))
++from cpcell.tech.gt2n_split_gate import SplitGateDecapProblem, default_design, FLAVORS  # noqa: E402
++from cpcell.gds.gds_GT2N_split_gate import export_split_gate, write_lef  # noqa: E402
++
++
++def main(argv=None):
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument(
++        "--design", type=Path, help="Explicit JSON frame and track settings"
++    )
++    parser.add_argument("--sheet-width-nm", type=int, choices=(13, 31), default=31)
++    parser.add_argument("--height-nm", type=int, default=144)
++    parser.add_argument("--vt", choices=FLAVORS, default="lvt")
++    parser.add_argument("--timeout", type=float, default=30)
++    parser.add_argument(
++        "--output-dir", type=Path, default=ROOT / "build/gt2n_split_gate"
++    )
++    args = parser.parse_args(argv)
++    out = args.output_dir.resolve()
++    out.mkdir(parents=True, exist_ok=True)
++    # A failed/infeasible rerun must not retain a previous successful layout.
++    for name in (
++        "solution.json",
++        "cell.gds",
++        "cell.cdl",
++        "cell.lef",
++        "manifest.json",
++        "checks.json",
++    ):
++        (out / name).unlink(missing_ok=True)
++    report = dict(status="running", verification_status="not_run")
++    (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
++    try:
++        design = (
++            json.loads(args.design.read_text())
++            if args.design
++            else default_design(args.sheet_width_nm, args.height_nm, args.vt)
++        )
++        problem = SplitGateDecapProblem(design)
++        result = problem.solve(args.timeout)
++        (out / "solution.json").write_text(json.dumps(result, indent=2) + "\n")
++        report.update(
++            solver_status=result["status"],
++            footprint_nm=[problem.width, problem.height],
++            scope=result["scope"],
++            blocked_terminals=result["blocked_terminals"],
++            standard_m0_grid=all(y % 24 == 0 for y in problem.rows),
++        )
++        if result["status"] in ("FEASIBLE", "OPTIMAL"):
++            layout = export_split_gate(result, out / "cell.gds")
++            write_lef(result, layout, out / "cell.lef")
++            (out / "cell.cdl").write_text(problem.schematic())
++            report["status"] = "generated"
++        else:
++            report["status"] = (
++                "infeasible" if result["status"] == "INFEASIBLE" else "unknown"
++            )
++        sources = [
++            "cpcell/core/band_router.py",
++            "cpcell/tech/gt2n_split_gate.py",
++            "cpcell/tech/gt2n_thin.py",
++            "cpcell/gds/gds_GT2N_split_gate.py",
++            "cpcell/gds/gds_GT2N_SH.py",
++            "examples/gt2n_split_gate/reproduce.py",
++        ]
++        report["source_sha256"] = {
++            name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
++            for name in sources
++        }
++        (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
++        files = ["solution.json", "report.json"]
++        if report["status"] == "generated":
++            files += ["cell.gds", "cell.lef", "cell.cdl"]
++        (out / "manifest.json").write_text(
++            json.dumps(
++                {
++                    name: hashlib.sha256((out / name).read_bytes()).hexdigest()
++                    for name in files
++                },
++                indent=2,
++            )
++            + "\n"
++        )
++        print(json.dumps(report, indent=2))
++        # Distinguish a proved scoped impossibility from a timeout in shell flows.
++        return {"generated": 0, "infeasible": 2, "unknown": 3}[report["status"]]
++    except Exception as error:
++        report.update(status="failed", error=str(error))
++        (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
++        raise
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/examples/gt2n_split_gate/verify.py b/examples/gt2n_split_gate/verify.py
+new file mode 100644
+--- /dev/null
++++ b/examples/gt2n_split_gate/verify.py
+@@ -0,0 +1,191 @@
++"""Check generated split-gate layouts against external GT2N DRC/LVS decks."""
++
++import argparse
++from collections import Counter
++import hashlib
++import json
++from pathlib import Path
++import re
++import subprocess
++
++import klayout.db as db
++import klayout.rdb as rdb
++
++
++def check(out, stem, top, drc_deck, lvs_deck):
++    result = {}
++    for lvs, deck in ((False, drc_deck), (True, lvs_deck)):
++        report = out / (stem + (".lvsdb" if lvs else ".lyrdb"))
++        cmd = [
++            "klayout",
++            "-b",
++            "-r",
++            str(deck),
++            "-rd",
++            f"in_gds={out / (stem + '.gds')}",
++            "-rd",
++            f"topcell={top}",
++            "-rd",
++            f"report_file={report}",
++        ]
++        if lvs:
++            cmd += [
++                "-rd",
++                f"cdl_file={out / (stem + '_reference.cdl')}",
++                "-rd",
++                f"target_netlist={out / (stem + '_extracted.cdl')}",
++            ]
++        else:
++            cmd += ["-rd", "drc_mode=full", "-rd", "drc_use_nets=1"]
++        with report.with_suffix(report.suffix + ".log").open("w") as log:
++            subprocess.run(
++                cmd, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=120
++            )
++        if lvs:
++            database = db.LayoutVsSchematic()
++            database.read(str(report))
++            matches = {
++                pair.first().name: pair.status() == db.NetlistCrossReference.Match
++                for pair in database.xref().each_circuit_pair()
++                if pair.first() is not None
++            }
++            if top not in matches or not all(matches.values()):
++                raise ValueError(f"LVS mismatch: {matches}")
++            result["lvs"] = matches
++        else:
++            counts = dict(
++                Counter(re.findall(r"<category>'([^'<]+)'", report.read_text()))
++            )
++            if counts != {"GATE.2": 2}:
++                raise ValueError(f"Unexpected DRC on {top}: {counts}")
++            layout = db.Layout()
++            layout.read(str(out / (stem + ".gds")))
++            gate = (
++                db.Region(layout.cell(top).begin_shapes_rec(layout.layer(3, 0)))
++                .bbox()
++                .to_dtype(layout.dbu)
++            )
++            outside = {round(gate.left, 9), round(gate.right, 9)}
++            database = rdb.ReportDatabase()
++            database.load(str(report))
++            observed = set()
++            for item in database.each_item():
++                for value in item.each_value():
++                    if not value.is_edge():
++                        raise ValueError("Expected outside gate edge")
++                    edge = value.edge()
++                    if (
++                        abs(edge.p1.x - edge.p2.x) > 1e-9
++                        or round(edge.p1.x, 9) not in outside
++                    ):
++                        raise ValueError("GATE.2 marker is not an outside edge")
++                    observed.add(round(edge.p1.x, 9))
++            if observed != outside:
++                raise ValueError("Missing outside-edge markers")
++            result["drc"] = counts
++    return result
++
++
++def main(argv=None):
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output-dir", type=Path, required=True)
++    parser.add_argument("--pdk-root", type=Path, required=True)
++    parser.add_argument(
++        "--drc-deck",
++        type=Path,
++        required=True,
++        help="KLayout deck including the VG/ACT overlap guard",
++    )
++    parser.add_argument("--lvs-deck", type=Path, required=True)
++    args = parser.parse_args(argv)
++    if "vg.interacting(act)" not in args.drc_deck.read_text():
++        raise ValueError("DRC deck must include the VG/ACT overlap guard")
++    out = args.output_dir.resolve()
++    (out / "checks.json").unlink(missing_ok=True)
++    manifest = json.loads((out / "manifest.json").read_text())
++    for name, digest in manifest.items():
++        if hashlib.sha256((out / name).read_bytes()).hexdigest() != digest:
++            raise ValueError(f"Generated artifact changed: {name}")
++    solution = json.loads((out / "solution.json").read_text())
++    if solution["status"] not in ("OPTIMAL", "FEASIBLE"):
++        raise ValueError("No feasible layout to verify")
++    design = solution["design"]
++    name = design["name"]
++    w = design["n_width_nm"]
++    vt = design["vt"]
++    if w != design["p_width_nm"]:
++        raise ValueError(
++            "Released-reference verification requires equal N/P sheet widths"
++        )
++    reference_name = f"gt2_6t_decapcc_w{w}_{vt}"
++    cdl_path = args.pdk_root / f"cdl/with4nodes/gt2_6t_w{w}_{vt}.cdl"
++    match = re.search(
++        rf"^\.subckt {reference_name} .*?^\.ends {reference_name}\s*$",
++        cdl_path.read_text(),
++        re.M | re.S | re.I,
++    )
++    if match is None:
++        raise ValueError("Missing released decap schematic")
++    cdl = match[0].replace(reference_name, name) + "\n"
++    (out / "cell_reference.cdl").write_text(cdl)
++    layout = db.Layout()
++    layout.read(str(out / "cell.gds"))
++    base = layout.cell(name)
++    array = layout.create_cell(name + "_array")
++    width = int(round(solution["width_nm"] / 1000 / layout.dbu))
++    height = int(round(solution["height_nm"] / 1000 / layout.dbu))
++    instances = []
++    for y in range(3):
++        for x in range(3):
++            mx, my = x % 2, y % 2
++            transform = db.Trans(
++                2 * mx, bool(mx != my), (x + mx) * width, (y + my) * height
++            )
++            array.insert(db.CellInstArray(base.cell_index(), transform))
++            instances.append(f"X{x}{y} vdd vss {name}")
++    layout.write(str(out / "array.gds"))
++    (out / "array_reference.cdl").write_text(
++        cdl
++        + f".SUBCKT {array.name} vdd vss\n"
++        + "\n".join(instances)
++        + f"\n.ENDS {array.name}\n"
++    )
++    checks = dict(
++        status="running",
++        scope="KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array; no ICV",
++    )
++    generation = json.loads((out / "report.json").read_text())
++
++    def verification_status(status):
++        generation["verification_status"] = status
++        path = out / "report.json"
++        path.write_text(json.dumps(generation, indent=2) + "\n")
++        manifest["report.json"] = hashlib.sha256(path.read_bytes()).hexdigest()
++        (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
++
++    verification_status("running")
++    try:
++        for stem, top in (("cell", name), ("array", array.name)):
++            checks[stem] = check(
++                out, stem, top, args.drc_deck.resolve(), args.lvs_deck.resolve()
++            )
++    except Exception:
++        verification_status("failed")
++        raise
++    checks["status"] = "passed"
++    checks["source_sha256"] = {
++        str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest()
++        for p in (Path(__file__), cdl_path, args.drc_deck, args.lvs_deck)
++    }
++    checks["artifact_sha256"] = {
++        p.name: hashlib.sha256(p.read_bytes()).hexdigest()
++        for p in out.iterdir()
++        if p.suffix in (".gds", ".cdl", ".lvsdb", ".lyrdb", ".lef")
++    }
++    (out / "checks.json").write_text(json.dumps(checks, indent=2) + "\n")
++    verification_status("passed_with_outer_gate_markers")
++    print(json.dumps(checks, indent=2))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/examples/gt2n_split_gate/README.md b/examples/gt2n_split_gate/README.md
+new file mode 100644
+--- /dev/null
++++ b/examples/gt2n_split_gate/README.md
+@@ -0,0 +1,12 @@
++# Split-gate GT2N decap
++
++See [the split-gate adapter documentation](../../docs/gt2n_split_gate.md) for
++geometry, feasibility scope, configuration, and physical verification.
++
++```sh
++python examples/gt2n_split_gate/reproduce.py --output-dir build/split_w31_144
++python examples/gt2n_split_gate/reproduce.py --height-nm 168 --output-dir build/split_w31_168
++```
++
++The original footprint returns exit code 2 (`INFEASIBLE` under the default
++constraints). The taller control exports a candidate layout and returns 0.
+diff --git a/docs/gt2n_split_gate.md b/docs/gt2n_split_gate.md
+new file mode 100644
+--- /dev/null
++++ b/docs/gt2n_split_gate.md
+@@ -0,0 +1,128 @@
++# GT2N split-gate decap support
++
++`SplitGateDecapProblem` models the cross-coupled NMOS/PMOS decap with both
++devices at x=42 nm and a gate cut separating their gate conductors. It uses
++`BandRouter` to choose contact sites and M0/M1/M2 routes. No routed metal is
++copied from GT2N. The initial profile supports this two-device circuit,
++W13/W31 sheets, L=14 nm, and all five threshold flavors.
++
++## Run
++
++From the CPCell checkout:
++
++```sh
++# Original 84 × 144 nm W31 footprint. Exit 2 means scoped INFEASIBLE.
++python examples/gt2n_split_gate/reproduce.py --output-dir build/split_w31_144
++
++# A taller, feasible control on the same 24 nm M0 grid.
++python examples/gt2n_split_gate/reproduce.py --height-nm 168 \
++  --output-dir build/split_w31_168
++```
++
++Outputs always include `solution.json`, `report.json`, and a hash manifest.
++Feasible results also include GDS, four-terminal CDL, and `CLASS CORE` LEF.
++Exit codes distinguish a generated candidate (0), proved model infeasibility
++(2), and an unresolved result such as timeout (3). Invalid input raises an
++error. Rerunning removes stale generated layouts and verification status.
++
++`solution.json` retains every proposed VG/VSD site, its rejection reasons,
++and terminals with no legal access. A missing contact never removes the
++device or terminal from the circuit: it makes the connectivity constraints
++infeasible. GDS export refuses infeasible/unresolved results and independently
++checks reconstructed routes before writing.
++
++## Geometry and scope
++
++- Width is fixed at 84 nm, with one active gate column between boundary
++  dummy gates. This adapter does not optimize placement or minimum width.
++- The gate is partitioned using actual `GATE − GCUT − DUMMY` geometry.
++  N/P segments are independent intrinsic conductors even though their
++  x-coordinates coincide. A cut that shorts or removes a gate is rejected.
++- Default ACT matches the released bands: W31 N at y=26–57 nm and P at
++  y=H−57 through H−26 nm; W13 N at y=35–48 and P at y=H−48 through H−35 nm.
++  The 10 nm gate cut defaults to the cell center and must clear ACT by 10 nm.
++- VG is 14 × 12 nm. Candidates must be entirely within their own gate
++  segment, avoid touching GCUT/DUMMY, and clear ACT by at least 6 nm.
++  VSD must fit its own diffusion contact. VBPR is fully inside BPR/SDCON
++  at y=5–16 and H−16 through H−5 nm.
++- Default M0 candidates have centers at 24 nm multiples. Horizontal routing
++  uses x=21/42/63 nm, with M1 and inter-metal vias at x=21/63 nm. Each selected
++  M1 via requires an adjacent wire segment to satisfy minimum metal length.
++- Candidate metals retain boundary clearance for mirrored neighbors. This
++  finite routing graph and its spacing constraints define the solver's scope;
++  physical checking remains necessary for a generated candidate.
++- Taller cells change row height. They are feasibility controls and do not
++  declare the 144 nm `gt2_6t` LEF site or provide a replacement site definition.
++
++For W31 at 84 × 144 nm, y=24/48/96/120 VG sites intersect ACT or lack clearance,
++and the y=72 site touches the separating gate cut. Both gate terminals have
++zero legal contacts. CP-SAT reports `INFEASIBLE` for all four combinations
++of N/P source/drain orientation. This establishes impossibility for the
++specified original frame and track grid, not every conceivable layout.
++
++At 84 × 168 nm, VG sites at y=72 and 96 nm become available and the router
++finds a solution. Its smaller area does not make it compatible with 144 nm
++standard-cell rows.
++
++## Explicit frame settings
++
++The Python API returns the design schema; save it as JSON and pass `--design`:
++
++```python
++from cpcell.tech.gt2n_split_gate import SplitGateDecapProblem, default_design
++
++design = default_design(sheet_width_nm=31, height_nm=144, vt="lvt")
++design["n_flip"] = True       # Swap physical diffusion sides; preserve CDL.
++result = SplitGateDecapProblem(design).solve(seconds=30)
++print(result["status"], result["blocked_terminals"])
++```
++
++Settings include separate N/P sheet widths, threshold flavor, independent
++diffusion orientations, cut center, and explicit M0 track centers. Tracks
++and cut coordinates use the half-nanometer manufacturing grid. JSON settings
++replace CLI sizing/flavor defaults. Unknown fields, unsupported sizes, invalid
++cuts, and malformed tracks fail validation.
++
++Explicit tracks can model a deliberate deviation from the library grid.
++For example, W13 with `[23, 48, 96, 121]` reproduces the 1 nm contact movement
++needed for exactly 6 nm VG/ACT clearance. Reports flag it with
++`standard_m0_grid: false`. W13 with the default tracks is infeasible in this
++frame. Custom tracks are diagnostic and do not silently relax the default
++24 nm grid.
++
++## Physical verification
++
++An optional standalone verifier requires GT2N and compatible KLayout decks:
++
++```sh
++python examples/gt2n_split_gate/verify.py \
++  --output-dir build/split_w31_168 --pdk-root ../GT2N \
++  --drc-deck ../GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_overlap.lydrc \
++  --lvs-deck ../GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_transistor.lylvs
++```
++
++It checks both the standalone cell and a 3×3 mirrored array against the
++released four-terminal decap CDL. The only accepted DRC markers are two
++`GATE.2` edges whose coordinates must match the outer gate-array boundaries.
++The DRC deck must contain the VG/ACT overlap guard. `checks.json` records
++results and hashes; `report.json` records the verification status. This
++released-CDL verifier currently requires equal N/P sheet widths.
++
++Validated cases are W31 at 84 × 168 nm on standard tracks and W13 at
++84 × 144 nm with the explicit 23/121 nm outer tracks. Neither ICV nor electrical
++characterization is part of this feature's verification.
++
++## Router API compatibility
++
++`BandRouter.solve_result(seconds=30)` returns a structured solver status even
++when no solution exists. `INFEASIBLE` and `UNKNOWN` results contain no routes or
++objective. Invalid models still raise an error. Existing `BandRouter.solve()`
++callers retain their previous behavior: they receive a feasible solution or
++a `ValueError` naming the unsuccessful status.
++
++Run the relevant regressions with:
++
++```sh
++python -m pytest tests/test_gt2n_split_gate.py tests/test_gt2n_thin.py \
++  tests/test_band_matching.py tests/test_gt2n_sense_amp.py
++```
+diff --git a/tests/test_gt2n_split_gate.py b/tests/test_gt2n_split_gate.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_gt2n_split_gate.py
+@@ -0,0 +1,189 @@
++"""Split-gate connectivity, physical contact access and scoped solver outcomes."""
++
++from copy import deepcopy
++import json
++from pathlib import Path
++import subprocess
++import sys
++
++import klayout.db as db
++import pytest
++
++from cpcell.core.band_router import BandRouter, RouteEdge, Shape
++from cpcell.gds.gds_GT2N_SH import LAYERS
++from cpcell.gds.gds_GT2N_split_gate import export_split_gate, write_lef
++from cpcell.tech.gt2n_split_gate import SplitGateDecapProblem, default_design
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def access(result, terminal):
++    return next(a for a in result["access"] if a["terminal"] == terminal)["candidates"]
++
++
++@pytest.mark.parametrize(
++    "n_flip,p_flip", [(False, False), (False, True), (True, False), (True, True)]
++)
++def test_original_w31_has_no_gate_access_for_any_diffusion_orientation(n_flip, p_flip):
++    design = default_design()
++    design.update(n_flip=n_flip, p_flip=p_flip)
++    p = SplitGateDecapProblem(design)
++    result = p.solve()
++    assert result["status"] == "INFEASIBLE"
++    assert set(result["blocked_terminals"]) == {"gate_n", "gate_p"}
++    assert "routes" not in result and "objective" not in result
++    for terminal in ("gate_n", "gate_p"):
++        assert not any(c["allowed"] for c in access(result, terminal))
++        center = next(c for c in access(result, terminal) if c["y_nm"] == 72)
++        assert "touches_gate_cut_or_dummy" in center["rejected_by"]
++    assert {a["terminal"] for a in result["access"]} == {
++        "drain_n",
++        "drain_p",
++        "gate_n",
++        "gate_p",
++    }
++    assert len([t for t in p.intrinsic if t[2] == "VG"]) == 2
++
++
++def test_gate_clearance_rejects_five_nm_and_accepts_exact_six_nm():
++    # Reproduce the W13 PR's 1 nm VG movement. This catches KLayout's
++    # sized(dx, mode) versus sized(dx, dy, mode) overload ambiguity.
++    design = default_design(13)
++    result = SplitGateDecapProblem(design).solve()
++    assert result["status"] == "INFEASIBLE"
++    candidate = next(c for c in access(result, "gate_n") if c["y_nm"] == 24)
++    assert "VG_ACT_clearance_below_6nm" in candidate["rejected_by"]
++    design["m0_tracks_nm"] = [23, 48, 96, 121]
++    result = SplitGateDecapProblem(design).solve()
++    assert result["status"] == "OPTIMAL"
++    assert [c["y_nm"] for c in access(result, "gate_n") if c["allowed"]] == [23]
++    assert [c["y_nm"] for c in access(result, "gate_p") if c["allowed"]] == [121]
++
++
++@pytest.mark.parametrize("vt", ["lvt", "elvt", "ulvt", "svt", "hvt"])
++def test_taller_split_gate_solves_and_exports_real_isolated_gates(vt, tmp_path):
++    design = default_design(31, 168, vt)
++    p = SplitGateDecapProblem(design)
++    result = p.solve()
++    assert result["status"] == "OPTIMAL"
++    assert not result["blocked_terminals"]
++    result = json.loads(json.dumps(result))
++    layout = export_split_gate(result, tmp_path / "cell.gds")
++    cell = layout.cell(p.name)
++
++    def reg(name):
++        return db.Region(cell.shapes(layout.layer(LAYERS[name], 0))).merged()
++
++    segments = (reg("GATE") - reg("GCUT") - reg("DUMMY")).merged()
++    assert segments.count() == 2
++    assert {polygon.bbox().height() for polygon in reg("ACT").each()} == {62}
++    assert (reg("VBPR") - reg("BPR")).is_empty()
++    assert (reg("VBPR") - reg("SDCON")).is_empty()
++    assert (reg("VG").sized(0, 12, 2) & reg("ACT")).is_empty()
++    assert reg("VG").interacting(reg("GCUT") + reg("DUMMY")).is_empty()
++    for polygon in reg("M0").each():
++        b = polygon.bbox()
++        assert (b.bottom + b.top) % 96 == 0
++    write_lef(result, layout, tmp_path / "cell.lef")
++    lef = (tmp_path / "cell.lef").read_text()
++    assert "CLASS CORE ;" in lef and "SPACER" not in lef
++    assert "SITE gt2_6t" not in lef
++    assert p.schematic().count("W=0.031u L=0.014u M=1") == 2
++
++
++def test_infeasible_or_corrupt_result_cannot_overwrite_layout(tmp_path):
++    path = tmp_path / "cell.gds"
++    path.write_bytes(b"previous layout")
++    bad = SplitGateDecapProblem().solve()
++    with pytest.raises(ValueError, match="infeasible or unproven"):
++        export_split_gate(bad, path)
++    good = SplitGateDecapProblem(default_design(31, 168)).solve()
++    bad = deepcopy(good)
++    bad["height_nm"] = 144
++    with pytest.raises(ValueError, match="dimensions"):
++        export_split_gate(bad, path)
++    bad = deepcopy(good)
++    bad["routes"] = [r for r in good["routes"] if r["net"] != "net7"]
++    with pytest.raises(ValueError, match="Disconnected"):
++        export_split_gate(bad, path)
++    assert path.read_bytes() == b"previous layout"
++
++
++@pytest.mark.parametrize(
++    "change",
++    [
++        {"cut_center_nm": 57},
++        {"m0_tracks_nm": [24, 24, 48]},
++        {"height_nm": 145},
++        {"n_width_nm": 30},
++        {"n_flip": 1},
++        {"m0_tracks_nm": [float("nan")]},
++        {"cut_center_nm": True},
++    ],
++)
++def test_unsupported_or_malformed_frame_is_rejected(change):
++    design = default_design()
++    design.update(change)
++    with pytest.raises(ValueError):
++        SplitGateDecapProblem(design)
++
++
++def test_status_api_preserves_legacy_exception_and_timeout_distinction():
++    router = SplitGateDecapProblem().router
++    assert router.solve_result()["status"] == "INFEASIBLE"
++    with pytest.raises(ValueError, match="INFEASIBLE"):
++        router.solve()
++    result = SplitGateDecapProblem(default_design(31, 168)).solve(1e-9)
++    assert result["status"] == "UNKNOWN"
++    assert "routes" not in result
++    for timeout in (0, -1, float("inf"), float("nan")):
++        with pytest.raises(ValueError, match="finite and positive"):
++            router.solve_result(timeout)
++
++
++def test_routing_conflict_reports_infeasibility_without_missing_contacts():
++    # Both terminals have access but different nets would share physical M0.
++    terminals = {net: [("T", net)] for net in ("a", "b")}
++    ports = {net: [(1, 0, i)] for i, net in enumerate(terminals)}
++    edges = [
++        RouteEdge(
++            terminals[net][0], ports[net][0], (Shape("M0", (0, 0, 24, 24)),), 1, net
++        )
++        for net in terminals
++    ]
++    assert BandRouter(edges, terminals, ports).solve_result()["status"] == "INFEASIBLE"
++
++
++def test_cli_reports_infeasibility_and_removes_stale_exports(tmp_path):
++    out = tmp_path / "out"
++    cmd = [
++        sys.executable,
++        str(ROOT / "examples/gt2n_split_gate/reproduce.py"),
++        "--output-dir",
++        str(out),
++    ]
++    completed = subprocess.run(
++        cmd + ["--height-nm", "168"],
++        cwd=tmp_path,
++        capture_output=True,
++        text=True,
++        timeout=30,
++    )
++    assert completed.returncode == 0, completed.stderr
++    assert (out / "cell.gds").exists()
++    (out / "checks.json").write_text('{"status":"passed"}')
++    completed = subprocess.run(
++        cmd, cwd=tmp_path, capture_output=True, text=True, timeout=30
++    )
++    assert completed.returncode == 2, completed.stderr
++    report = json.loads((out / "report.json").read_text())
++    assert report["solver_status"] == "INFEASIBLE"
++    assert report["verification_status"] == "not_run"
++    assert report["standard_m0_grid"]
++    assert report["footprint_nm"] == [84, 144]
++    assert all(
++        not (out / name).exists()
++        for name in ("cell.gds", "cell.cdl", "cell.lef", "checks.json")
++    )
++    manifest = json.loads((out / "manifest.json").read_text())
++    assert set(manifest) == {"solution.json", "report.json"}

@@ -1,0 +1,8 @@
+* GT2N extracted
+
+.SUBCKT gt2n_split_decap_w13_h144_lvt vss vdd
+M$1 \$3 \$4 vss vss nmos_lvt L=0.014U W=0.013U AS=0.000364P AD=0.000364P
++ PS=0.082U PD=0.082U
+M$2 \$4 \$3 vdd vdd pmos_lvt L=0.014U W=0.013U AS=0.000364P AD=0.000364P
++ PS=0.082U PD=0.082U
+.ENDS gt2n_split_decap_w13_h144_lvt

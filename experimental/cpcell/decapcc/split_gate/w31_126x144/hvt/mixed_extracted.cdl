@@ -1,0 +1,28 @@
+* GT2N extracted
+
+.SUBCKT gt2_6t_decapcc_sg_w31_hvt_mixed A_0_0 Y_0_0 A_2_0 Y_2_0 A_0_1 Y_0_1
++ A_2_1 Y_2_1 A_0_2 Y_0_2 A_2_2 Y_2_2 vdd vss
+X$1 vss vdd Y_0_0 A_0_0 gt2_6t_inv_x1_w31_hvt
+X$2 vss vdd Y_2_0 A_2_0 gt2_6t_inv_x1_w31_hvt
+X$3 vss vdd Y_0_1 A_0_1 gt2_6t_inv_x1_w31_hvt
+X$4 vss vdd Y_2_1 A_2_1 gt2_6t_inv_x1_w31_hvt
+X$5 vss vdd Y_0_2 A_0_2 gt2_6t_inv_x1_w31_hvt
+X$6 vss vdd Y_2_2 A_2_2 gt2_6t_inv_x1_w31_hvt
+X$7 vss vdd gt2_6t_decapcc_sg_w31_hvt
+X$8 vss vdd gt2_6t_decapcc_sg_w31_hvt
+X$9 vss vdd gt2_6t_decapcc_sg_w31_hvt
+.ENDS gt2_6t_decapcc_sg_w31_hvt_mixed
+
+.SUBCKT gt2_6t_decapcc_sg_w31_hvt vss vdd
+M$1 \$3 \$4 vss vss nmos_hvt L=0.014U W=0.031U AS=0.000868P AD=0.000868P
++ PS=0.118U PD=0.118U
+M$2 vdd \$3 \$4 vdd pmos_hvt L=0.014U W=0.031U AS=0.000868P AD=0.000868P
++ PS=0.118U PD=0.118U
+.ENDS gt2_6t_decapcc_sg_w31_hvt
+
+.SUBCKT gt2_6t_inv_x1_w31_hvt vss vdd Y A
+M$1 Y A vss vss nmos_hvt L=0.014U W=0.031U AS=0.000868P AD=0.000868P PS=0.118U
++ PD=0.118U
+M$2 Y A vdd vdd pmos_hvt L=0.014U W=0.031U AS=0.000868P AD=0.000868P PS=0.118U
++ PD=0.118U
+.ENDS gt2_6t_inv_x1_w31_hvt

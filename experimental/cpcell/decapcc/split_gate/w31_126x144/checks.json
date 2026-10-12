@@ -1,0 +1,309 @@
+{
+  "status": "passed",
+  "footprint_nm": [
+    126,
+    144
+  ],
+  "area_um2": 0.018144,
+  "width_reduction_from_168_percent": 25,
+  "arrangement": "staggered adjacent active N/P columns; partial dummy markers; no middle GCUT",
+  "scope": "KLayout DRC and released-CDL LVS; standalone, 3x3 mirrored and mixed inverter rows; no ICV",
+  "flavors": {
+    "lvt": {
+      "checks_sha256": "53bc8a5c954d470c1351e312c768d3385e571be76da8964082dfc4c08d21e53d",
+      "library_compatibility": {
+        "vbpr_contained_in_bpr_and_sdcon": true,
+        "vbpr_y_nm": [
+          [
+            5.0,
+            16.0
+          ],
+          [
+            128.0,
+            139.0
+          ]
+        ],
+        "m0_track_centers_nm": [
+          48.0,
+          72.0,
+          96.0
+        ],
+        "lef_class": "CORE"
+      },
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_lvt": true
+        }
+      },
+      "array": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_lvt": true,
+          "gt2_6t_decapcc_sg_w31_lvt_array": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_lvt": true,
+          "gt2_6t_decapcc_sg_w31_lvt_mixed": true,
+          "gt2_6t_inv_x1_w31_lvt": true
+        }
+      },
+      "rowend": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_lvt": true,
+          "gt2_6t_decapcc_sg_w31_lvt_rowend": true,
+          "gt2_6t_inv_x1_w31_lvt": true
+        }
+      }
+    },
+    "elvt": {
+      "checks_sha256": "7b8fa0731e847b697830d05c38b793eef5cd659ddcfd5b015846472c10f5c5dc",
+      "library_compatibility": {
+        "vbpr_contained_in_bpr_and_sdcon": true,
+        "vbpr_y_nm": [
+          [
+            5.0,
+            16.0
+          ],
+          [
+            128.0,
+            139.0
+          ]
+        ],
+        "m0_track_centers_nm": [
+          48.0,
+          72.0,
+          96.0
+        ],
+        "lef_class": "CORE"
+      },
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_elvt": true
+        }
+      },
+      "array": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_elvt": true,
+          "gt2_6t_decapcc_sg_w31_elvt_array": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_elvt": true,
+          "gt2_6t_decapcc_sg_w31_elvt_mixed": true,
+          "gt2_6t_inv_x1_w31_elvt": true
+        }
+      },
+      "rowend": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_elvt": true,
+          "gt2_6t_decapcc_sg_w31_elvt_rowend": true,
+          "gt2_6t_inv_x1_w31_elvt": true
+        }
+      }
+    },
+    "ulvt": {
+      "checks_sha256": "b1a02550e9f0f876f841e9e539c8f68d7ca5f835a90746ced3ae5062bb910fa4",
+      "library_compatibility": {
+        "vbpr_contained_in_bpr_and_sdcon": true,
+        "vbpr_y_nm": [
+          [
+            5.0,
+            16.0
+          ],
+          [
+            128.0,
+            139.0
+          ]
+        ],
+        "m0_track_centers_nm": [
+          48.0,
+          72.0,
+          96.0
+        ],
+        "lef_class": "CORE"
+      },
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_ulvt": true
+        }
+      },
+      "array": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_ulvt": true,
+          "gt2_6t_decapcc_sg_w31_ulvt_array": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_ulvt": true,
+          "gt2_6t_decapcc_sg_w31_ulvt_mixed": true,
+          "gt2_6t_inv_x1_w31_ulvt": true
+        }
+      },
+      "rowend": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_ulvt": true,
+          "gt2_6t_decapcc_sg_w31_ulvt_rowend": true,
+          "gt2_6t_inv_x1_w31_ulvt": true
+        }
+      }
+    },
+    "svt": {
+      "checks_sha256": "7d37575c0f58e13c33fed3cbcf75e5bed3fc4ffa39c928dd564cf8109b74376f",
+      "library_compatibility": {
+        "vbpr_contained_in_bpr_and_sdcon": true,
+        "vbpr_y_nm": [
+          [
+            5.0,
+            16.0
+          ],
+          [
+            128.0,
+            139.0
+          ]
+        ],
+        "m0_track_centers_nm": [
+          48.0,
+          72.0,
+          96.0
+        ],
+        "lef_class": "CORE"
+      },
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_svt": true
+        }
+      },
+      "array": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_svt": true,
+          "gt2_6t_decapcc_sg_w31_svt_array": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_svt": true,
+          "gt2_6t_decapcc_sg_w31_svt_mixed": true,
+          "gt2_6t_inv_x1_w31_svt": true
+        }
+      },
+      "rowend": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_svt": true,
+          "gt2_6t_decapcc_sg_w31_svt_rowend": true,
+          "gt2_6t_inv_x1_w31_svt": true
+        }
+      }
+    },
+    "hvt": {
+      "checks_sha256": "77507732e4b97497a1777fb95c58412bb6fd057abe1f8cda3a05465a5091e21a",
+      "library_compatibility": {
+        "vbpr_contained_in_bpr_and_sdcon": true,
+        "vbpr_y_nm": [
+          [
+            5.0,
+            16.0
+          ],
+          [
+            128.0,
+            139.0
+          ]
+        ],
+        "m0_track_centers_nm": [
+          48.0,
+          72.0,
+          96.0
+        ],
+        "lef_class": "CORE"
+      },
+      "cell": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_hvt": true
+        }
+      },
+      "array": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_hvt": true,
+          "gt2_6t_decapcc_sg_w31_hvt_array": true
+        }
+      },
+      "mixed": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_hvt": true,
+          "gt2_6t_decapcc_sg_w31_hvt_mixed": true,
+          "gt2_6t_inv_x1_w31_hvt": true
+        }
+      },
+      "rowend": {
+        "drc": {
+          "GATE.2": 2
+        },
+        "lvs": {
+          "gt2_6t_decapcc_sg_w31_hvt": true,
+          "gt2_6t_decapcc_sg_w31_hvt_rowend": true,
+          "gt2_6t_inv_x1_w31_hvt": true
+        }
+      }
+    }
+  },
+  "compatibility_checker_sha256": "82945af29d84d3258fc4e8e2cecf6174795fec907fb14861cb0504c3cf9a45de"
+}

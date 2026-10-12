@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "all_flavor_geometry_identical": true,
+  "source_matches_physical_verification_hashes": true,
+  "nominal_mesh_nm": 7.0,
+  "refined_mesh_nm": 3.5,
+  "nominal_domain_margin_nm": 800.0,
+  "refined_domain_margin_nm": 1600.0,
+  "nominal_solver_tolerance": 0.005,
+  "refined_solver_tolerance": 0.001,
+  "lvt_1mhz_nominal_ff": 0.2972180888118839,
+  "lvt_1mhz_refined_ff": 0.29786789884070775,
+  "max_relative_capacitance_change_through_100ghz": 0.0021815376257885337,
+  "nominal_1ghz_esr_ohm": 1006.3464813015429,
+  "refined_1ghz_esr_ohm": 1010.0072188567984,
+  "matrix_predicted_added_capacitance_ff": 0.0467473,
+  "model_leakage_max_absolute_numerical_residual_a": 1.505373799102394e-22,
+  "cases": 120,
+  "operating_points": 100,
+  "source_sha256": {
+    "experimental/cpcell/decapcc/w31/checks.json": "d5cf66f6e899f2eb485c61490e128603fca3e410b430505ea20c2da523d526ab",
+    "experimental/cpcell/decapcc/electrical/pex/extraction.json": "58515e358c6e66b286fa52df415c54560a57f49f26f8b396c911eec478d3c103",
+    "experimental/cpcell/decapcc/electrical/convergence/tight1600/extraction.json": "656d56ea5e9971e4cd2f2c72fb448e863a78fcbf7e7f695a6d2649ff4902697d",
+    "experimental/cpcell/decapcc/electrical/convergence/refined_lvt.json": "2da9e3e8368c11c64c37f307664df70d2601d28354c68187cd0f8257d4278644",
+    "experimental/cpcell/decapcc/electrical/simulation/characterization.json": "777e645a650b13090618a0dbe02e6bca92fb946f76a47a76d057dd59860ea513"
+  }
+}

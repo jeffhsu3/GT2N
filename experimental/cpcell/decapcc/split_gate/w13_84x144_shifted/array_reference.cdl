@@ -1,0 +1,18 @@
+.subckt gt2n_split_decap_w13_h144_lvt vdd vss
+*.PININFO vdd:B vss:B
+MM1 net7 net12 vss vss nmos_lvt W=0.013u L=0.014u M=1
+MM0 net12 net7 vdd vdd pmos_lvt W=0.013u L=0.014u M=1
+.ends gt2n_split_decap_w13_h144_lvt
+
+
+.SUBCKT gt2n_split_decap_w13_h144_lvt_array vdd vss
+X00 vdd vss gt2n_split_decap_w13_h144_lvt
+X10 vdd vss gt2n_split_decap_w13_h144_lvt
+X20 vdd vss gt2n_split_decap_w13_h144_lvt
+X01 vdd vss gt2n_split_decap_w13_h144_lvt
+X11 vdd vss gt2n_split_decap_w13_h144_lvt
+X21 vdd vss gt2n_split_decap_w13_h144_lvt
+X02 vdd vss gt2n_split_decap_w13_h144_lvt
+X12 vdd vss gt2n_split_decap_w13_h144_lvt
+X22 vdd vss gt2n_split_decap_w13_h144_lvt
+.ENDS gt2n_split_decap_w13_h144_lvt_array

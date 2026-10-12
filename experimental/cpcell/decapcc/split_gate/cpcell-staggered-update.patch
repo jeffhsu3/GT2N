@@ -1,0 +1,532 @@
+diff --git a/cpcell/gds/gds_GT2N_split_gate.py b/cpcell/gds/gds_GT2N_split_gate.py
+--- a/cpcell/gds/gds_GT2N_split_gate.py
++++ b/cpcell/gds/gds_GT2N_split_gate.py
+@@ -60,7 +60,7 @@
+     # Taller cases are feasibility controls, not drop-in 6T library cells.
+     if problem.height == 144:
+         lines.append("  SITE gt2_6t ;")
+-    lines.append(f"  SIZE 0.084 BY {problem.height / 1000:g} ;")
++    lines.append(f"  SIZE {problem.width / 1000:g} BY {problem.height / 1000:g} ;")
+     for y, net, use in ((0, "vss", "GROUND"), (problem.height, "vdd", "POWER")):
+         lines += [
+             f"  PIN {net}",
+@@ -68,7 +68,7 @@
+             f"    USE {use} ;",
+             "    PORT",
+             "      LAYER BPR ;",
+-            f"        RECT 0 {(y - 16) / 1000:g} 0.084 {(y + 16) / 1000:g} ;",
++            f"        RECT 0 {(y - 16) / 1000:g} {problem.width / 1000:g} {(y + 16) / 1000:g} ;",
+             "    END",
+             f"  END {net}",
+         ]
+diff --git a/cpcell/tech/gt2n_split_gate.py b/cpcell/tech/gt2n_split_gate.py
+--- a/cpcell/tech/gt2n_split_gate.py
++++ b/cpcell/tech/gt2n_split_gate.py
+@@ -1,6 +1,6 @@
+-"""GT2N cross-coupled N/P pair with independently contacted split gates.
+-
+-This is an explicit 84 nm placement profile, not a general analog placer.
++"""GT2N cross-coupled N/P pair with independently contacted gates.
++
++Explicit 84 nm split and 126 nm staggered profiles, not a general analog placer.
+ Its feasibility result covers the supplied frame, track list and routing graph.
+ """
+ 
+@@ -30,15 +30,16 @@
+ }
+ 
+ 
+-def default_design(sheet_width_nm=31, height_nm=144, vt="lvt"):
++def default_design(sheet_width_nm=31, height_nm=144, vt="lvt", arrangement="split"):
+     return dict(
+-        name=f"gt2n_split_decap_w{sheet_width_nm}_h{height_nm}_{vt}",
++        name=f"gt2n_{arrangement}_decap_w{sheet_width_nm}_h{height_nm}_{vt}",
++        arrangement=arrangement,
+         n_width_nm=sheet_width_nm,
+         p_width_nm=sheet_width_nm,
+         height_nm=height_nm,
+         vt=vt,
+         n_flip=False,
+-        p_flip=False,
++        p_flip=arrangement == "staggered",
+         cut_center_nm=height_nm / 2,
+         m0_tracks_nm=list(range(24, height_nm, 24)),
+     )
+@@ -49,13 +50,17 @@
+ 
+ 
+ class SplitGateDecapProblem:
+-    width = 84
+-
+     def __init__(self, design=None):
+         self.design = deepcopy(default_design() if design is None else design)
+         d = self.design
++        # Preserve previously generated split-gate JSON and route numbering.
++        d.setdefault("arrangement", "split")
+         if set(d) != set(default_design()):
+             raise ValueError("Unknown or missing split-gate design fields")
++        if d["arrangement"] not in ("split", "staggered"):
++            raise ValueError("Arrangement must be split or staggered")
++        self.width = 84 if d["arrangement"] == "split" else 126
++        self.gate_x = (42, 42 if self.width == 84 else 84)
+         if not isinstance(d["name"], str) or not re.fullmatch(
+             r"[A-Za-z_][A-Za-z0-9_]{0,63}", d["name"]
+         ):
+@@ -129,27 +134,35 @@
+         def add(layer, *coords):
+             self.frame.append(box(layer, *coords))
+ 
+-        h = self.height
+-        add("BOUNDARY", 0, 0, 84, h)
+-        add("NSEL", 0, 0, 84, h / 2)
+-        add("PSEL", 0, h / 2, 84, h)
+-        add("NWELL", 0, h / 2, 84, h)
+-        for x in (0, 42, 84):
++        w, h = self.width, self.height
++        add("BOUNDARY", 0, 0, w, h)
++        add("NSEL", 0, 0, w, h / 2)
++        add("PSEL", 0, h / 2, w, h)
++        add("NWELL", 0, h / 2, w, h)
++        for x in range(0, w + 1, 42):
+             add("GATE", x - 7, 0, x + 7, h)
+-            if x != 42:
++            if x in (0, w):
+                 add("DUMMY", x - 7, 0, x + 7, h)
+         for y in (0, h):
+-            add("BPR", 0, y - 16, 84, y + 16)
+-            add("GCUT", -7, y - 5, 91, y + 5)
+-        add("GCUT", -7, self.cut[0], 91, self.cut[1])
+-        for lo, hi in self.bands:
+-            add("ACT", 0, lo, 84, hi)
++            add("BPR", 0, y - 16, w, y + 16)
++            add("GCUT", -7, y - 5, w + 7, y + 5)
++        if self.design["arrangement"] == "split":
++            add("GCUT", -7, self.cut[0], w + 7, self.cut[1])
++        else:
++            # Adjacent N/P columns each terminate in a dummy on the opposite
++            # ACT edge. Their central contacts retain a half-nm marker gap.
++            center = self.design["cut_center_nm"]
++            add("DUMMY", 35, center + 6.5, 49, h)
++            add("DUMMY", 77, 0, 91, center - 6.5)
++        for x, (lo, hi) in zip(self.gate_x, self.bands):
++            add("ACT", x - 42, lo, x + 42, hi)
+         if self.design["vt"] != "lvt":
+-            add(self.design["vt"].upper(), 0, 0, 84, h)
++            add(self.design["vt"].upper(), 0, 0, w, h)
+         for kind, band in enumerate(self.bands):
+-            source = 63 if self.design["p_flip" if kind else "n_flip"] else 21
+-            drain = 84 - source
+-            lo, hi = band
++            x = self.gate_x[kind]
++            flip = self.design["p_flip" if kind else "n_flip"]
++            source = x + 21 if flip else x - 21
++            drain = 2 * x - source
+             # Keep the released 41 nm drain contact length for W13 and W31.
+             clo, chi = (21, 62) if kind == 0 else (h - 62, h - 21)
+             slo, shi = (5, chi) if kind == 0 else (clo, h - 5)
+@@ -184,7 +197,7 @@
+             devices = [
+                 i
+                 for i, band in enumerate(self.bands)
+-                if polygon.inside(db.Point(84, int(sum(band))))
++                if polygon.inside(db.Point(2 * self.gate_x[i], int(sum(band))))
+             ]
+             if len(devices) > 1:
+                 raise ValueError("Gate cuts leave different gate nets shorted")
+@@ -196,7 +209,7 @@
+                     "net7" if kind else "net12",
+                     "VG",
+                     db.Region(polygon),
+-                    42,
++                    self.gate_x[kind],
+                 )
+         if assigned != {0, 1}:
+             raise ValueError("Missing split-gate transistor segment")
+@@ -207,11 +220,17 @@
+         for s in shapes:
+             x0, y0, x1, y1 = s.box
+             if s.layer in ("M0", "M2") and (
+-                x0 < 17 or x1 > 151 or y0 < 12 or y1 > 2 * self.height - 12
++                x0 < 17
++                or x1 > 2 * self.width - 17
++                or y0 < 12
++                or y1 > 2 * self.height - 12
+             ):
+                 return
+             if s.layer == "M1" and (
+-                x0 < 14 or x1 > 154 or y0 < 20 or y1 > 2 * self.height - 20
++                x0 < 14
++                or x1 > 2 * self.width - 14
++                or y0 < 20
++                or y1 > 2 * self.height - 20
+             ):
+                 return
+         self.edges.append(RouteEdge(u, v, tuple(shapes), int(cost), owner))
+@@ -219,14 +238,14 @@
+     def _grid(self):
+         for layer, metal in ((1, "M0"), (3, "M2")):
+             for y in self.rows:
+-                for a, b in pairwise((21, 42, 63)):
++                for a, b in pairwise(range(21, self.width, 21)):
+                     self._edge(
+                         node(layer, a, y),
+                         node(layer, b, y),
+                         [box(metal, a - 12, y - 6, b + 12, y + 6)],
+                         2 * (b - a),
+                     )
+-        for x in (21, 63):
++        for x in range(21, self.width, 42):
+             for a, b in pairwise(self.rows):
+                 if b - a >= 8:
+                     self._edge(
+@@ -295,7 +314,7 @@
+             design=deepcopy(self.design),
+             width_nm=self.width,
+             height_nm=self.height,
+-            scope="Fixed split-gate decap placement, explicit tracks, M0/M1/M2 candidates and mirrored boundary clearance; not a global width proof",
++            scope=f"Fixed {self.design['arrangement']} decap placement, explicit tracks, M0/M1/M2 candidates and mirrored boundary clearance; not a global width proof",
+             access=deepcopy(self.access),
+             blocked_terminals=[
+                 a["terminal"]
+diff --git a/docs/gt2n_split_gate.md b/docs/gt2n_split_gate.md
+--- a/docs/gt2n_split_gate.md
++++ b/docs/gt2n_split_gate.md
+@@ -1,9 +1,10 @@
+ # GT2N split-gate decap support
+ 
+-`SplitGateDecapProblem` models the cross-coupled NMOS/PMOS decap with both
+-devices at x=42 nm and a gate cut separating their gate conductors. It uses
+-`BandRouter` to choose contact sites and M0/M1/M2 routes. No routed metal is
+-copied from GT2N. The initial profile supports this two-device circuit,
++`SplitGateDecapProblem` models the cross-coupled NMOS/PMOS decap with independently
++contacted gate segments. It supports a split gate at x=42 nm in an 84 nm cell,
++and staggered gates at x=42/84 nm in a 126 nm cell. It uses `BandRouter` to choose
++contact sites and M0/M1/M2 routes. No routed metal is copied from GT2N. The
++profiles support this two-device circuit,
+ W13/W31 sheets, L=14 nm, and all five threshold flavors.
+ 
+ ## Run
+@@ -17,6 +18,10 @@
+ # A taller, feasible control on the same 24 nm M0 grid.
+ python examples/gt2n_split_gate/reproduce.py --height-nm 168 \
+   --output-dir build/split_w31_168
++
++# Feasible 126 × 144 nm W31 candidate on the standard grid and row height.
++python examples/gt2n_split_gate/reproduce.py --arrangement staggered \
++  --output-dir build/staggered_w31_144
+ ```
+ 
+ Outputs always include `solution.json`, `report.json`, and a hash manifest.
+@@ -33,21 +38,30 @@
+ 
+ ## Geometry and scope
+ 
+-- Width is fixed at 84 nm, with one active gate column between boundary
+-  dummy gates. This adapter does not optimize placement or minimum width.
++- Width is fixed per arrangement: 84 nm for `split`, 126 nm for `staggered`.
++  This adapter does not optimize placement or minimum width.
+ - The gate is partitioned using actual `GATE − GCUT − DUMMY` geometry.
+   N/P segments are independent intrinsic conductors even though their
+   x-coordinates coincide. A cut that shorts or removes a gate is rejected.
++- In the staggered arrangement N/P ACT spans x=0–84 / 42–126 nm. Partial
++  dummy markers cover the opposite ACT edge at each active column: upper
++  x=35–49, y=78.5–144 nm and lower x=77–91, y=0–65.5 nm at default height.
++  There is no middle GCUT. Both VG contacts fit at y=66–78 nm, with 9 nm ACT
++  clearance and 0.5 nm clearance to the partial dummy markers. The released
++  deck and transistor extraction accept this geometry, including abutment.
+ - Default ACT matches the released bands: W31 N at y=26–57 nm and P at
+   y=H−57 through H−26 nm; W13 N at y=35–48 and P at y=H−48 through H−35 nm.
+   The 10 nm gate cut defaults to the cell center and must clear ACT by 10 nm.
++  In the staggered case this setting positions the partial dummy endpoints;
++  the same conservative ACT separation constraint is retained.
+ - VG is 14 × 12 nm. Candidates must be entirely within their own gate
+   segment, avoid touching GCUT/DUMMY, and clear ACT by at least 6 nm.
+   VSD must fit its own diffusion contact. VBPR is fully inside BPR/SDCON
+   at y=5–16 and H−16 through H−5 nm.
+ - Default M0 candidates have centers at 24 nm multiples. Horizontal routing
+-  uses x=21/42/63 nm, with M1 and inter-metal vias at x=21/63 nm. Each selected
+-  M1 via requires an adjacent wire segment to satisfy minimum metal length.
++  uses 21 nm x increments inside the footprint, with M1 and inter-metal vias
++  every 42 nm starting at x=21 nm. Each selected M1 via requires an adjacent
++  wire segment to satisfy minimum metal length.
+ - Candidate metals retain boundary clearance for mirrored neighbors. This
+   finite routing graph and its spacing constraints define the solver's scope;
+   physical checking remains necessary for a generated candidate.
+@@ -64,6 +78,13 @@
+ finds a solution. Its smaller area does not make it compatible with 144 nm
+ standard-cell rows.
+ 
++At 126 × 144 nm, the staggered arrangement is feasible with the original W31
++devices, standard tracks, fully enclosed supply vias, and `CLASS CORE` LEF.
++It is 25% narrower than the 168 × 144 nm full-dummy prototype, and 50% wider
++than the original 84 nm cell. This uses two adjacent active gate columns;
++it is not a solution to the original one-column split-gate frame. No global
++minimum-width claim follows from these fixed-placement experiments.
++
+ ## Explicit frame settings
+ 
+ The Python API returns the design schema; save it as JSON and pass `--design`:
+@@ -78,7 +99,7 @@
+ ```
+ 
+ Settings include separate N/P sheet widths, threshold flavor, independent
+-diffusion orientations, cut center, and explicit M0 track centers. Tracks
++diffusion orientations, arrangement, cut center, and explicit M0 track centers. Tracks
+ and cut coordinates use the half-nanometer manufacturing grid. JSON settings
+ replace CLI sizing/flavor defaults. Unknown fields, unsupported sizes, invalid
+ cuts, and malformed tracks fail validation.
+@@ -89,6 +110,11 @@
+ `standard_m0_grid: false`. W13 with the default tracks is infeasible in this
+ frame. Custom tracks are diagnostic and do not silently relax the default
+ 24 nm grid.
++
++Older JSON designs without `arrangement` retain `split` behavior and the same
++routing graph. `default_design(arrangement="staggered")` defaults to an N source
++on the left and a P source on the right; explicit orientation flags override
++these positions without changing the schematic.
+ 
+ ## Physical verification
+ 
+@@ -102,14 +128,17 @@
+ ```
+ 
+ It checks both the standalone cell and a 3×3 mirrored array against the
+-released four-terminal decap CDL. The only accepted DRC markers are two
++released four-terminal decap CDL. For 144 nm cells it also checks three mirrored
++rows of released inverter / generated decap / released inverter. The only
++accepted DRC markers are two
+ `GATE.2` edges whose coordinates must match the outer gate-array boundaries.
+ The DRC deck must contain the VG/ACT overlap guard. `checks.json` records
+ results and hashes; `report.json` records the verification status. This
+ released-CDL verifier currently requires equal N/P sheet widths.
+ 
+-Validated cases are W31 at 84 × 168 nm on standard tracks and W13 at
+-84 × 144 nm with the explicit 23/121 nm outer tracks. Neither ICV nor electrical
++Validated cases include all five W31 flavors at 126 × 144 nm (standalone,
++mirrored, mixed), plus the W31 84 × 168 nm and shifted-track W13 controls
++(standalone and mirrored). Neither ICV nor electrical
+ characterization is part of this feature's verification.
+ 
+ ## Router API compatibility
+diff --git a/examples/gt2n_split_gate/README.md b/examples/gt2n_split_gate/README.md
+--- a/examples/gt2n_split_gate/README.md
++++ b/examples/gt2n_split_gate/README.md
+@@ -6,7 +6,10 @@
+ ```sh
+ python examples/gt2n_split_gate/reproduce.py --output-dir build/split_w31_144
+ python examples/gt2n_split_gate/reproduce.py --height-nm 168 --output-dir build/split_w31_168
++python examples/gt2n_split_gate/reproduce.py --arrangement staggered --output-dir build/staggered_w31_144
+ ```
+ 
+ The original footprint returns exit code 2 (`INFEASIBLE` under the default
+-constraints). The taller control exports a candidate layout and returns 0.
++constraints). The taller control and 126 × 144 nm staggered candidate export
++layouts and return 0. The staggered candidate keeps the original row height,
++uses adjacent N/P gate columns, and is 25% narrower than the 168 nm prototype.
+diff --git a/examples/gt2n_split_gate/reproduce.py b/examples/gt2n_split_gate/reproduce.py
+--- a/examples/gt2n_split_gate/reproduce.py
++++ b/examples/gt2n_split_gate/reproduce.py
+@@ -20,6 +20,9 @@
+     parser.add_argument("--sheet-width-nm", type=int, choices=(13, 31), default=31)
+     parser.add_argument("--height-nm", type=int, default=144)
+     parser.add_argument("--vt", choices=FLAVORS, default="lvt")
++    parser.add_argument(
++        "--arrangement", choices=("split", "staggered"), default="split"
++    )
+     parser.add_argument("--timeout", type=float, default=30)
+     parser.add_argument(
+         "--output-dir", type=Path, default=ROOT / "build/gt2n_split_gate"
+@@ -43,7 +46,9 @@
+         design = (
+             json.loads(args.design.read_text())
+             if args.design
+-            else default_design(args.sheet_width_nm, args.height_nm, args.vt)
++            else default_design(
++                args.sheet_width_nm, args.height_nm, args.vt, args.arrangement
++            )
+         )
+         problem = SplitGateDecapProblem(design)
+         result = problem.solve(args.timeout)
+diff --git a/examples/gt2n_split_gate/verify.py b/examples/gt2n_split_gate/verify.py
+--- a/examples/gt2n_split_gate/verify.py
++++ b/examples/gt2n_split_gate/verify.py
+@@ -10,6 +10,66 @@
+ 
+ import klayout.db as db
+ import klayout.rdb as rdb
++
++
++def mixed_array(layout, base, out, pdk, design, cdl, cdl_text, width, height):
++    """Three mirrored rows of released inverter / generated decap / inverter."""
++    vt, w = design["vt"], design["n_width_nm"]
++    gds_path = pdk / f"gds/gt2_6t_std_cells_w{w}_{vt}.gds"
++    released = db.Layout()
++    released.read(str(gds_path))
++    invname = f"gt2_6t_inv_x1_w{w}_{vt}"
++    inv = layout.create_cell(invname)
++    inv.copy_tree(released.cell(invname))
++    invw = db.Region(inv.shapes(layout.layer(235, 250))).bbox().width()
++    match = re.search(
++        rf"^\.subckt {invname} .*?^\.ends {invname}\s*$", cdl_text, re.M | re.S | re.I
++    )
++    if match is None:
++        raise ValueError("Missing released inverter schematic")
++    top = layout.create_cell(base.name + "_mixed")
++    row = [(inv, invw, ("A", "Y")), (base, width, ()), (inv, invw, ("A", "Y"))]
++    ports, instances = [], []
++    for y in range(3):
++        offset = 0
++        for x, (master, cellw, signals) in enumerate(row):
++            mx, my = x % 2, y % 2
++            trans = db.Trans(
++                2 * mx, bool(mx != my), offset + mx * cellw, (y + my) * height
++            )
++            top.insert(db.CellInstArray(master.cell_index(), trans))
++            pins = [f"{pin}_{x}_{y}" for pin in signals]
++            for pin, net in zip(signals, pins):
++                found = False
++                for index in layout.layer_indexes():
++                    info = layout.get_info(index)
++                    if info.datatype != 251 or info.layer not in (20, 25, 30):
++                        continue
++                    for shape in master.shapes(index).each():
++                        if shape.is_text() and shape.text.string == pin:
++                            position = shape.text.trans.disp
++                            point = trans * db.Point(position.x, position.y)
++                            top.shapes(index).insert(
++                                db.Text(net, db.Trans(point.x, point.y))
++                            )
++                            found = True
++                            break
++                    if found:
++                        break
++                if not found:
++                    raise ValueError(f"Missing released inverter pin {pin}")
++            ports.extend(pins)
++            instances.append(f"X{x}{y} {' '.join(pins)} vdd vss {master.name}")
++            offset += cellw
++    layout.write(str(out / "mixed.gds"))
++    (out / "mixed_reference.cdl").write_text(
++        cdl
++        + match[0]
++        + f"\n.SUBCKT {top.name} {' '.join(ports)} vdd vss\n"
++        + "\n".join(instances)
++        + f"\n.ENDS {top.name}\n"
++    )
++    return top.name, gds_path
+ 
+ 
+ def check(out, stem, top, drc_deck, lvs_deck):
+@@ -152,8 +212,24 @@
+     )
+     checks = dict(
+         status="running",
+-        scope="KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array; no ICV",
+-    )
++        scope="KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array, plus mixed inverter rows at 144 nm height; no ICV",
++    )
++    cases = [("cell", name), ("array", array.name)]
++    sources = [Path(__file__), cdl_path, args.drc_deck, args.lvs_deck]
++    if solution["height_nm"] == 144:
++        mixed, gds_path = mixed_array(
++            layout,
++            base,
++            out,
++            args.pdk_root,
++            design,
++            cdl,
++            cdl_path.read_text(),
++            width,
++            height,
++        )
++        cases.append(("mixed", mixed))
++        sources.append(gds_path)
+     generation = json.loads((out / "report.json").read_text())
+ 
+     def verification_status(status):
+@@ -165,7 +241,7 @@
+ 
+     verification_status("running")
+     try:
+-        for stem, top in (("cell", name), ("array", array.name)):
++        for stem, top in cases:
+             checks[stem] = check(
+                 out, stem, top, args.drc_deck.resolve(), args.lvs_deck.resolve()
+             )
+@@ -174,8 +250,7 @@
+         raise
+     checks["status"] = "passed"
+     checks["source_sha256"] = {
+-        str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest()
+-        for p in (Path(__file__), cdl_path, args.drc_deck, args.lvs_deck)
++        str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources
+     }
+     checks["artifact_sha256"] = {
+         p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+diff --git a/tests/test_gt2n_split_gate.py b/tests/test_gt2n_split_gate.py
+--- a/tests/test_gt2n_split_gate.py
++++ b/tests/test_gt2n_split_gate.py
+@@ -61,8 +61,11 @@
+ 
+ 
+ @pytest.mark.parametrize("vt", ["lvt", "elvt", "ulvt", "svt", "hvt"])
+-def test_taller_split_gate_solves_and_exports_real_isolated_gates(vt, tmp_path):
+-    design = default_design(31, 168, vt)
++@pytest.mark.parametrize("arrangement,height", [("split", 168), ("staggered", 144)])
++def test_feasible_profiles_export_real_isolated_gates(
++    vt, arrangement, height, tmp_path
++):
++    design = default_design(31, height, vt, arrangement)
+     p = SplitGateDecapProblem(design)
+     result = p.solve()
+     assert result["status"] == "OPTIMAL"
+@@ -87,8 +90,23 @@
+     write_lef(result, layout, tmp_path / "cell.lef")
+     lef = (tmp_path / "cell.lef").read_text()
+     assert "CLASS CORE ;" in lef and "SPACER" not in lef
+-    assert "SITE gt2_6t" not in lef
++    assert ("SITE gt2_6t" in lef) == (height == 144)
++    assert f"SIZE {p.width / 1000:g} BY {height / 1000:g}" in lef
++    if arrangement == "staggered":
++        assert p.width == 126
++        assert {polygon.bbox().center().x for polygon in segments.each()} == {84, 168}
++        assert reg("GCUT").count() == 2  # Boundary cuts only.
+     assert p.schematic().count("W=0.031u L=0.014u M=1") == 2
++
++
++def test_legacy_design_without_arrangement_reconstructs_identical_routes():
++    current = default_design(31, 168)
++    legacy = deepcopy(current)
++    legacy.pop("arrangement")
++    a, b = SplitGateDecapProblem(current), SplitGateDecapProblem(legacy)
++    assert a.design == b.design
++    assert a.edges == b.edges
++    b.validate(a.solve()["routes"])
+ 
+ 
+ def test_infeasible_or_corrupt_result_cannot_overwrite_layout(tmp_path):
+@@ -119,6 +137,7 @@
+         {"n_flip": 1},
+         {"m0_tracks_nm": [float("nan")]},
+         {"cut_center_nm": True},
++        {"arrangement": "unknown"},
+     ],
+ )
+ def test_unsupported_or_malformed_frame_is_rejected(change):
+@@ -163,7 +182,7 @@
+         str(out),
+     ]
+     completed = subprocess.run(
+-        cmd + ["--height-nm", "168"],
++        cmd + ["--arrangement", "staggered"],
+         cwd=tmp_path,
+         capture_output=True,
+         text=True,
+@@ -171,6 +190,7 @@
+     )
+     assert completed.returncode == 0, completed.stderr
+     assert (out / "cell.gds").exists()
++    assert json.loads((out / "report.json").read_text())["footprint_nm"] == [126, 144]
+     (out / "checks.json").write_text('{"status":"passed"}')
+     completed = subprocess.run(
+         cmd, cwd=tmp_path, capture_output=True, text=True, timeout=30

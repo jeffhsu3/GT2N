@@ -1,0 +1,7 @@
+.subckt gt2_6t_decapcc_sg_w31_ulvt vdd vss
+*.PININFO vdd:B vss:B
+MM1 net7 net12 vss vss nmos_ulvt W=0.031u L=0.014u M=1
+MM0 net12 net7 vdd vdd pmos_ulvt W=0.031u L=0.014u M=1
+.ends gt2_6t_decapcc_sg_w31_ulvt
+
+

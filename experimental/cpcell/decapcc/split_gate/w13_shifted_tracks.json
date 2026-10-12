@@ -1,0 +1,16 @@
+{
+  "name": "gt2n_split_decap_w13_h144_lvt",
+  "n_width_nm": 13,
+  "p_width_nm": 13,
+  "height_nm": 144,
+  "vt": "lvt",
+  "n_flip": false,
+  "p_flip": false,
+  "cut_center_nm": 72.0,
+  "m0_tracks_nm": [
+    23,
+    48,
+    96,
+    121
+  ]
+}

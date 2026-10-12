@@ -1,0 +1,107 @@
+{
+  "status": "OPTIMAL",
+  "objective": 1148.0,
+  "wall_time": 0.048672446,
+  "routes": [
+    {
+      "net": "net12",
+      "edge": 7
+    },
+    {
+      "net": "net12",
+      "edge": 14
+    },
+    {
+      "net": "net12",
+      "edge": 15
+    },
+    {
+      "net": "net12",
+      "edge": 45
+    },
+    {
+      "net": "net12",
+      "edge": 48
+    },
+    {
+      "net": "net12",
+      "edge": 50
+    },
+    {
+      "net": "net12",
+      "edge": 68
+    },
+    {
+      "net": "net12",
+      "edge": 69
+    },
+    {
+      "net": "net7",
+      "edge": 2
+    },
+    {
+      "net": "net7",
+      "edge": 3
+    },
+    {
+      "net": "net7",
+      "edge": 10
+    },
+    {
+      "net": "net7",
+      "edge": 52
+    },
+    {
+      "net": "net7",
+      "edge": 54
+    },
+    {
+      "net": "net7",
+      "edge": 56
+    },
+    {
+      "net": "net7",
+      "edge": 70
+    },
+    {
+      "net": "net7",
+      "edge": 71
+    }
+  ],
+  "route_metrics": {
+    "net12": {
+      "M0_length": 126,
+      "M1_length": 48,
+      "V0_count": 2,
+      "VG_count": 1,
+      "VSD_count": 1
+    },
+    "net7": {
+      "M0_length": 126,
+      "M1_length": 48,
+      "V0_count": 2,
+      "VG_count": 1,
+      "VSD_count": 1
+    }
+  },
+  "format": "cpcell.decapcc.v1",
+  "width_nm": 168,
+  "height_nm": 144,
+  "flavors": [
+    "lvt",
+    "elvt",
+    "ulvt",
+    "svt",
+    "hvt"
+  ],
+  "cpcell_commit": "1a179c9512171ff2da80e5caf509dd90b32d3609",
+  "source_sha256": {
+    "cpcell/core/band_router.py": "aaec4ffc2de1084b3dbf7f0c1cb1dd68d7128b6d32fe0d6a76edfb5474fa6110",
+    "cpcell/tech/gt2n_thin.py": "fe431a7c4b6516c7aada9b48311c7b7f3d2519c0d3b549a115ddb4180d5c7c9c",
+    "cpcell/gds/gds_GT2N_SH.py": "5ba16c5eb62ee2fefc42a01aa5672dd3011fc7684d014c16bd15909dd6361cd6"
+  },
+  "versions": {
+    "ortools": "9.15.6755",
+    "klayout": "0.30.12"
+  }
+}

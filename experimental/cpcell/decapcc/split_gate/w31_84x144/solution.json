@@ -1,0 +1,201 @@
+{
+  "format": "cpcell.split_gate.v1",
+  "design": {
+    "name": "gt2n_split_decap_w31_h144_lvt",
+    "n_width_nm": 31,
+    "p_width_nm": 31,
+    "height_nm": 144,
+    "vt": "lvt",
+    "n_flip": false,
+    "p_flip": false,
+    "cut_center_nm": 72.0,
+    "m0_tracks_nm": [
+      24,
+      48,
+      72,
+      96,
+      120
+    ]
+  },
+  "width_nm": 84,
+  "height_nm": 144,
+  "scope": "Fixed split-gate decap placement, explicit tracks, M0/M1/M2 candidates and mirrored boundary clearance; not a global width proof",
+  "access": [
+    {
+      "terminal": "drain_n",
+      "net": "net7",
+      "layer": "VSD",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "drain_p",
+      "net": "net12",
+      "layer": "VSD",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "gate_n",
+      "net": "net12",
+      "layer": "VG",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "touches_gate_cut_or_dummy"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "gate_p",
+      "net": "net7",
+      "layer": "VG",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "touches_gate_cut_or_dummy"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        }
+      ]
+    }
+  ],
+  "blocked_terminals": [
+    "gate_n",
+    "gate_p"
+  ],
+  "status": "INFEASIBLE",
+  "wall_time": 0.0006829620000000001
+}

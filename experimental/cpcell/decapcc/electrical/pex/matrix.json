@@ -1,0 +1,45 @@
+{
+  "nets": [
+    "net12",
+    "net7",
+    "vdd",
+    "vss"
+  ],
+  "maxwell_f": [
+    [
+      2.05407e-17,
+      -1.05485e-17,
+      -2.9886500000000003e-18,
+      -2.22678e-18
+    ],
+    [
+      -1.05485e-17,
+      2.05617e-17,
+      -2.2257600000000004e-18,
+      -2.98821e-18
+    ],
+    [
+      -2.9886500000000003e-18,
+      -2.2257600000000004e-18,
+      3.21839e-17,
+      -9.91495e-18
+    ],
+    [
+      -2.22678e-18,
+      -2.98821e-18,
+      -9.91495e-18,
+      3.2183700000000005e-17
+    ]
+  ],
+  "symmetry_error": 0.002884672149739458,
+  "margin_nm": 800.0,
+  "error": 0.005,
+  "input_sha256": {
+    "interface_0.qui": "9ac864bd05d83da12ccab33e01dba741d3aa90eafa234b5776b44252e0adaa7a",
+    "geometry.lst": "ed322db82ec13c5967ccf3ce0e5fc939bb7bade901b8d9563ab1ecd6f43f685d",
+    "conductors_k2.4.qui": "9da7b6a85bbc6ace54145881521162531c00761feb2b6954b14e085be9b8fc7d",
+    "conductors_k3.9.qui": "2cb2c5f045f6e656a561552548861a2c96cd5692c97ec5a9b8e0b99eb7ee07f2",
+    "conductors_k7.qui": "d92d3d0c121f998d65a72c1c95f0c231cf237c2dd3c3938082e86bba40eb51c9",
+    "interface_1.qui": "4ea031ba33d58b7d2683e17bf7722eb7f02290ed2622eebf4b0eff123bcc629e"
+  }
+}

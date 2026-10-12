@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "scope": "KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array; no ICV",
+  "cell": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2n_split_decap_w31_h168_lvt": true
+    }
+  },
+  "array": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2n_split_decap_w31_h168_lvt": true,
+      "gt2n_split_decap_w31_h168_lvt_array": true
+    }
+  },
+  "source_sha256": {
+    "/tmp/cpcell-split-gate/examples/gt2n_split_gate/verify.py": "1d59f25a4339d75308857264160be48e70118df72c24c9f272da0ee9c2170de4",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w31_lvt.cdl": "a3560e464d335330977ca0f369a3b2429c25e223b0c68b9082a2e98040b44dc8",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_overlap.lydrc": "fe9e5ff1c5d8b4db5935850b5ecac7352bf8f1aef4243a7c1233fd9bbf210519",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_transistor.lylvs": "ed25e573049171e523145d973f03b0245ac0aeb7f626f5e77b169ad321f68b1b"
+  },
+  "artifact_sha256": {
+    "array_extracted.cdl": "9b5f734e0117f8e7b55e15f490ee5721a2328890da2a704f8b74ee896dbf745a",
+    "cell.lef": "0815d04ebfbed836d40bfde0159cc84ebe9ed86cf59ce0d38ae61bb309525254",
+    "cell.lyrdb": "b0d6c8783ab5ef19f223387bc8aeaae1a738a3211581dc03646b27567d9628d2",
+    "cell_extracted.cdl": "2ae89580d4c9a98d5440960f67d080c21f2f8efb5e0db6475da5e42e9a28cbd7",
+    "array.lvsdb": "6f937a3db7222815887b1c8aab09a2d7235c033f9411221d9b714bdb87941b2b",
+    "cell.cdl": "97ef456aac6de53d828cac43aadf03dd5f6c031d324a11a3ea50cd00f9cbf544",
+    "array_reference.cdl": "56f4423b4425cfa28dcc4f0aa4fcc34f6af02a0853cac1fd4f10f1015e08b7ff",
+    "cell_reference.cdl": "f6c01575da1118614f90ca2edec1101476e43b1aacbcd426414b442d3167a157",
+    "array.gds": "0a5c6dddbbfecb3f95edaab4e4fd8f6782d2ce83cab3a270d5360b37bcf94e79",
+    "cell.lvsdb": "e3555dfa76e6e9709a1b876c55a8018d98fe4ba95b650b1b700f9d2bb49799be",
+    "cell.gds": "24ada0a0409f211c9d8029c3b674f77a62130598e178c68a615821bb885a8454",
+    "array.lyrdb": "80ccd2dbe693af21ad3f0e41e03b7d9765f23f2558234b4bebb033bceba3eb9b"
+  }
+}

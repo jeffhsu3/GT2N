@@ -1,0 +1,288 @@
+diff --git a/cpcell/tech/gt2n_split_gate.py b/cpcell/tech/gt2n_split_gate.py
+index a82f7d3..8e173fe 100644
+--- a/cpcell/tech/gt2n_split_gate.py
++++ b/cpcell/tech/gt2n_split_gate.py
+@@ -30,9 +30,22 @@ SPACING = {
+ }
+ 
+ 
++def cell_name(sheet_width_nm, height_nm, vt, arrangement):
++    """Name a generated cell.
++
++    Row-height (144 nm) cells are drop-in gt2_6t library cells and follow the
++    released ``gt2_6t_<cell>_w<sheet>_<vt>`` pattern; taller feasibility
++    controls keep a research name that states their height.
++    """
++    if height_nm == 144:
++        tag = {"split": "sp", "staggered": "sg"}[arrangement]
++        return f"gt2_6t_decapcc_{tag}_w{sheet_width_nm}_{vt}"
++    return f"gt2n_{arrangement}_decap_w{sheet_width_nm}_h{height_nm}_{vt}"
++
++
+ def default_design(sheet_width_nm=31, height_nm=144, vt="lvt", arrangement="split"):
+     return dict(
+-        name=f"gt2n_{arrangement}_decap_w{sheet_width_nm}_h{height_nm}_{vt}",
++        name=cell_name(sheet_width_nm, height_nm, vt, arrangement),
+         arrangement=arrangement,
+         n_width_nm=sheet_width_nm,
+         p_width_nm=sheet_width_nm,
+@@ -150,12 +163,24 @@ class SplitGateDecapProblem:
+             add("GCUT", -7, self.cut[0], w + 7, self.cut[1])
+         else:
+             # Adjacent N/P columns each terminate in a dummy on the opposite
+-            # ACT edge. Their central contacts retain a half-nm marker gap.
++            # ACT edge. The markers start 10 nm from the centre line: 4 nm
++            # clear of the centre-track VG (VG.3 forbids touching) and 5 nm
++            # short of the ACT edge they must cover (ACT.6).
+             center = self.design["cut_center_nm"]
+-            add("DUMMY", 35, center + 6.5, 49, h)
+-            add("DUMMY", 77, 0, 91, center - 6.5)
++            add("DUMMY", 35, center + 10, 49, h)
++            add("DUMMY", 77, 0, 91, center - 10)
++        staggered = self.design["arrangement"] == "staggered"
+         for x, (lo, hi) in zip(self.gate_x, self.bands):
+-            add("ACT", x - 42, lo, x + 42, hi)
++            # Staggered: both bands run the full cell width, as in every
++            # released multi-pitch cell, so a one-pitch tap or filler beside
++            # the cell merges its 42 nm active with ours (ACT.2). The other
++            # device's gate then crosses this band as a tied-off isolation
++            # gate under its partial DUMMY marker, as gate x=84 does in the
++            # released mux2.
++            if staggered:
++                add("ACT", 0, lo, w, hi)
++            else:
++                add("ACT", x - 42, lo, x + 42, hi)
+         if self.design["vt"] != "lvt":
+             add(self.design["vt"].upper(), 0, 0, w, h)
+         for kind, band in enumerate(self.bands):
+@@ -169,6 +194,12 @@ class SplitGateDecapProblem:
+             via0, via1 = (5, 16) if kind == 0 else (h - 16, h - 5)
+             add("SDCON", source - 8, slo, source + 8, shi)
+             add("VBPR", source - 8, via0, source + 8, via1)
++            if staggered:
++                # Contact the diffusion beyond the isolation gate and tie it
++                # to the source supply, so no active is left floating.
++                tie = 2 * drain - source
++                add("SDCON", tie - 8, slo, tie + 8, shi)
++                add("VBPR", tie - 8, via0, tie + 8, via1)
+             shape = box("SDCON", drain - 8, clo, drain + 8, chi)
+             self.frame.append(shape)
+             self._terminal(
+diff --git a/cpcell/gds/gds_GT2N_split_gate.py b/cpcell/gds/gds_GT2N_split_gate.py
+index a87c79b..f50579e 100644
+--- a/cpcell/gds/gds_GT2N_split_gate.py
++++ b/cpcell/gds/gds_GT2N_split_gate.py
+@@ -60,6 +60,8 @@ def write_lef(solution, layout, filename):
+     # Taller cases are feasibility controls, not drop-in 6T library cells.
+     if problem.height == 144:
+         lines.append("  SITE gt2_6t ;")
++    # Every released gt2_6t macro names its GDS cell with FOREIGN.
++    lines.append(f"    FOREIGN {problem.name} 0 0 ;")
+     lines.append(f"  SIZE {problem.width / 1000:g} BY {problem.height / 1000:g} ;")
+     for y, net, use in ((0, "vss", "GROUND"), (problem.height, "vdd", "POWER")):
+         lines += [
+diff --git a/docs/gt2n_split_gate.md b/docs/gt2n_split_gate.md
+index 2a18b1d..8644970 100644
+--- a/docs/gt2n_split_gate.md
++++ b/docs/gt2n_split_gate.md
+@@ -43,12 +43,22 @@ checks reconstructed routes before writing.
+ - The gate is partitioned using actual `GATE − GCUT − DUMMY` geometry.
+   N/P segments are independent intrinsic conductors even though their
+   x-coordinates coincide. A cut that shorts or removes a gate is rejected.
+-- In the staggered arrangement N/P ACT spans x=0–84 / 42–126 nm. Partial
+-  dummy markers cover the opposite ACT edge at each active column: upper
+-  x=35–49, y=78.5–144 nm and lower x=77–91, y=0–65.5 nm at default height.
++- In the staggered arrangement both ACT bands span the full 126 nm width,
++  as in every released multi-pitch cell, so the released one-pitch tap and
++  filler (42 nm of active each) can merge with them to meet ACT.2 at row
++  ends. Each gate crosses the other device's band as a tied-off isolation
++  gate under a partial dummy marker (upper x=35–49, y=82–144 nm and lower
++  x=77–91, y=0–62 nm at default height), as gate x=84 does in the released
++  mux2; the diffusion beyond it is contacted and tied to the source rail.
+   There is no middle GCUT. Both VG contacts fit at y=66–78 nm, with 9 nm ACT
+-  clearance and 0.5 nm clearance to the partial dummy markers. The released
+-  deck and transistor extraction accept this geometry, including abutment.
++  clearance and 4 nm clearance to the partial dummy markers. The released
++  deck and transistor extraction accept this geometry, including abutment
++  against released cells and one-pitch cells at row ends.
++- Cells at the 144 nm row height are named like the released library,
++  `gt2_6t_decapcc_sg_w<sheet>_<vt>` (staggered) or `gt2_6t_decapcc_sp_...`
++  (split), and their LEF carries the `FOREIGN` line every released macro
++  has. Taller controls keep the `gt2n_<arrangement>_decap_w<sheet>_h<height>_<vt>`
++  research name.
+ - Default ACT matches the released bands: W31 N at y=26–57 nm and P at
+   y=H−57 through H−26 nm; W13 N at y=35–48 and P at y=H−48 through H−35 nm.
+   The 10 nm gate cut defaults to the cell center and must clear ACT by 10 nm.
+diff --git a/tests/test_gt2n_split_gate.py b/tests/test_gt2n_split_gate.py
+index 6f212fe..3e59461 100644
+--- a/tests/test_gt2n_split_gate.py
++++ b/tests/test_gt2n_split_gate.py
+@@ -91,11 +91,26 @@ def test_feasible_profiles_export_real_isolated_gates(
+     lef = (tmp_path / "cell.lef").read_text()
+     assert "CLASS CORE ;" in lef and "SPACER" not in lef
+     assert ("SITE gt2_6t" in lef) == (height == 144)
++    assert f"FOREIGN {p.name} 0 0 ;" in lef
++    if height == 144:
++        tag = "sg" if arrangement == "staggered" else "sp"
++        assert p.name == f"gt2_6t_decapcc_{tag}_w31_{vt}"
++    else:
++        assert p.name == f"gt2n_{arrangement}_decap_w31_h{height}_{vt}"
+     assert f"SIZE {p.width / 1000:g} BY {height / 1000:g}" in lef
+     if arrangement == "staggered":
+         assert p.width == 126
+         assert {polygon.bbox().center().x for polygon in segments.each()} == {84, 168}
+         assert reg("GCUT").count() == 2  # Boundary cuts only.
++        # Partial dummy markers keep 4 nm from the centre-track VG contacts.
++        assert (reg("VG").sized(0, 8, 2) & reg("DUMMY")).is_empty()
++        # Both active bands span the cell, so one-pitch neighbours merge
++        # their 42 nm active with ours; the diffusion beyond each isolation
++        # gate is contacted and tied to its rail.
++        for polygon in reg("ACT").each():
++            assert (polygon.bbox().left, polygon.bbox().right) == (0, 2 * p.width)
++        assert reg("SDCON").count() == 6 and reg("VBPR").count() == 4
++        assert (reg("VBPR") - reg("SDCON")).is_empty()
+     assert p.schematic().count("W=0.031u L=0.014u M=1") == 2
+ 
+ 
+diff --git a/examples/gt2n_split_gate/verify.py b/examples/gt2n_split_gate/verify.py
+index e81a592..93a5fab 100644
+--- a/examples/gt2n_split_gate/verify.py
++++ b/examples/gt2n_split_gate/verify.py
+@@ -12,6 +12,82 @@ import klayout.db as db
+ import klayout.rdb as rdb
+ 
+ 
++def label(layout, top, master, trans, pin, net):
++    """Copy a released cell's pin text into the array under a unique net name."""
++    for index in layout.layer_indexes():
++        info = layout.get_info(index)
++        if info.datatype != 251 or info.layer not in (20, 25, 30):
++            continue
++        for shape in master.shapes(index).each():
++            if shape.is_text() and shape.text.string == pin:
++                position = shape.text.trans.disp
++                point = trans * db.Point(position.x, position.y)
++                top.shapes(index).insert(db.Text(net, db.Trans(point.x, point.y)))
++                return
++    raise ValueError(f"Missing released pin {pin}")
++
++
++def subcircuit(text, name):
++    match = re.search(rf"^\.subckt {name} .*?^\.ends {name}\s*$", text, re.M | re.S | re.I)
++    if match is None:
++        raise ValueError(f"Missing released schematic {name}")
++    return match[0] + "\n"
++
++
++def rowend_array(layout, base, out, pdk, design, cdl, cdl_text, width, height):
++    """Three mirrored rows of tap / decap / filler / decap / inverter / decap /
++    filler / tap. The released one-pitch cells carry only 42 nm of active and
++    rely on merging with their neighbours to meet ACT.2, so the generated cell
++    must present active at both edges of both bands."""
++    vt, w = design["vt"], design["n_width_nm"]
++    gds_path = pdk / f"gds/gt2_6t_std_cells_w13_{vt}.gds"
++    cdl_path = pdk / f"cdl/with4nodes/gt2_6t_w13_{vt}.cdl"
++    released = db.Layout()
++    released.read(str(gds_path))
++    one_pitch = {}
++    for stem in ("tapbspdn", "filler"):
++        name = f"gt2_6t_{stem}_w13_{vt}"
++        cell = layout.create_cell(name)
++        cell.copy_tree(released.cell(name))
++        one_pitch[stem] = cell
++    invname = f"gt2_6t_inv_x1_w{w}_{vt}"
++    inv = layout.cell(invname)
++    if inv is None:
++        raise ValueError("Row-end test expects the mixed-row inverter")
++    schematics = subcircuit(cdl_text, invname) + "".join(
++        subcircuit(cdl_path.read_text(), c.name) for c in one_pitch.values()
++    )
++
++    def cell_width(cell):
++        return db.Region(cell.shapes(layout.layer(235, 250))).bbox().width()
++
++    tap, filler = one_pitch["tapbspdn"], one_pitch["filler"]
++    row = [tap, base, filler, base, inv, base, filler, tap]
++    top = layout.create_cell(base.name + "_rowend")
++    ports, instances = [], []
++    for y, (mirror, dy) in enumerate(((False, 0), (True, 0), (True, 2 * height))):
++        offset = 0
++        for x, master in enumerate(row):
++            trans = db.Trans(0, mirror, offset, dy)
++            top.insert(db.CellInstArray(master.cell_index(), trans))
++            signals = ("A", "Y") if master is inv else ()
++            pins = [f"{pin}_{x}_{y}" for pin in signals]
++            for pin, net in zip(signals, pins):
++                label(layout, top, master, trans, pin, net)
++            ports.extend(pins)
++            instances.append(f"X{x}{y} {' '.join(pins)} vdd vss {master.name}")
++            offset += cell_width(master)
++    layout.write(str(out / "rowend.gds"))
++    (out / "rowend_reference.cdl").write_text(
++        cdl
++        + schematics
++        + f"\n.SUBCKT {top.name} {' '.join(ports)} vdd vss\n"
++        + "\n".join(instances)
++        + f"\n.ENDS {top.name}\n"
++    )
++    return top.name, [gds_path, cdl_path]
++
++
+ def mixed_array(layout, base, out, pdk, design, cdl, cdl_text, width, height):
+     """Three mirrored rows of released inverter / generated decap / inverter."""
+     vt, w = design["vt"], design["n_width_nm"]
+@@ -40,24 +116,7 @@ def mixed_array(layout, base, out, pdk, design, cdl, cdl_text, width, height):
+             top.insert(db.CellInstArray(master.cell_index(), trans))
+             pins = [f"{pin}_{x}_{y}" for pin in signals]
+             for pin, net in zip(signals, pins):
+-                found = False
+-                for index in layout.layer_indexes():
+-                    info = layout.get_info(index)
+-                    if info.datatype != 251 or info.layer not in (20, 25, 30):
+-                        continue
+-                    for shape in master.shapes(index).each():
+-                        if shape.is_text() and shape.text.string == pin:
+-                            position = shape.text.trans.disp
+-                            point = trans * db.Point(position.x, position.y)
+-                            top.shapes(index).insert(
+-                                db.Text(net, db.Trans(point.x, point.y))
+-                            )
+-                            found = True
+-                            break
+-                    if found:
+-                        break
+-                if not found:
+-                    raise ValueError(f"Missing released inverter pin {pin}")
++                label(layout, top, master, trans, pin, net)
+             ports.extend(pins)
+             instances.append(f"X{x}{y} {' '.join(pins)} vdd vss {master.name}")
+             offset += cellw
+@@ -212,7 +271,7 @@ def main(argv=None):
+     )
+     checks = dict(
+         status="running",
+-        scope="KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array, plus mixed inverter rows at 144 nm height; no ICV",
++        scope="KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array, plus mixed inverter rows and rows ending in one-pitch tap/filler cells at 144 nm height; no ICV",
+     )
+     cases = [("cell", name), ("array", array.name)]
+     sources = [Path(__file__), cdl_path, args.drc_deck, args.lvs_deck]
+@@ -230,6 +289,19 @@ def main(argv=None):
+         )
+         cases.append(("mixed", mixed))
+         sources.append(gds_path)
++        rowend, extra = rowend_array(
++            layout,
++            base,
++            out,
++            args.pdk_root,
++            design,
++            cdl,
++            cdl_path.read_text(),
++            width,
++            height,
++        )
++        cases.append(("rowend", rowend))
++        sources.extend(extra)
+     generation = json.loads((out / "report.json").read_text())
+ 
+     def verification_status(status):

@@ -1,0 +1,23 @@
+{
+  "status": "infeasible",
+  "verification_status": "not_run",
+  "solver_status": "INFEASIBLE",
+  "footprint_nm": [
+    84,
+    144
+  ],
+  "scope": "Fixed split-gate decap placement, explicit tracks, M0/M1/M2 candidates and mirrored boundary clearance; not a global width proof",
+  "blocked_terminals": [
+    "gate_n",
+    "gate_p"
+  ],
+  "standard_m0_grid": true,
+  "source_sha256": {
+    "cpcell/core/band_router.py": "20a521d3815d947cf40b5b5f3b31cdd29bc87fd4d90fcf9604d3917447ebf178",
+    "cpcell/tech/gt2n_split_gate.py": "d137568ff680585d2032a60f809ab237374c47965078c69fbde3e2ee9eec3b37",
+    "cpcell/tech/gt2n_thin.py": "fe431a7c4b6516c7aada9b48311c7b7f3d2519c0d3b549a115ddb4180d5c7c9c",
+    "cpcell/gds/gds_GT2N_split_gate.py": "08a24d55c73c81644a330d4fd08861dc6c7b9a442c1be95cd17305f8dd2f3a18",
+    "cpcell/gds/gds_GT2N_SH.py": "5ba16c5eb62ee2fefc42a01aa5672dd3011fc7684d014c16bd15909dd6361cd6",
+    "examples/gt2n_split_gate/reproduce.py": "8151fcb55c22a0841928f13cff0c930d1bf8ed471b16b4867e9ece36cc54b62b"
+  }
+}

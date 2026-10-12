@@ -1,0 +1,6 @@
+{
+  "max_relative_admittance_error": 5.507036066690362e-12,
+  "dc_a": 6.999999999999999e-13,
+  "expected_dc_a": 7e-13,
+  "status": "passed"
+}

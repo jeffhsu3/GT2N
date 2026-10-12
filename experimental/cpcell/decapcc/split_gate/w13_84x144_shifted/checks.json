@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "scope": "KLayout DRC and released-CDL transistor LVS; standalone and 3x3 mirrored array; no ICV",
+  "cell": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2n_split_decap_w13_h144_lvt": true
+    }
+  },
+  "array": {
+    "drc": {
+      "GATE.2": 2
+    },
+    "lvs": {
+      "gt2n_split_decap_w13_h144_lvt": true,
+      "gt2n_split_decap_w13_h144_lvt_array": true
+    }
+  },
+  "source_sha256": {
+    "/tmp/cpcell-split-gate/examples/gt2n_split_gate/verify.py": "1d59f25a4339d75308857264160be48e70118df72c24c9f272da0ee9c2170de4",
+    "/home/jeff/iv4/repos/GT2N/cdl/with4nodes/gt2_6t_w13_lvt.cdl": "b812eea5d0ebc8cb1a903c5768ab28d34aac2e1e8501e8fd531c083b87ccaddb",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_overlap.lydrc": "fe9e5ff1c5d8b4db5935850b5ecac7352bf8f1aef4243a7c1233fd9bbf210519",
+    "/home/jeff/iv4/repos/GT2N/experimental/cpcell/decapcc/w31/decks/gt2n_transistor.lylvs": "ed25e573049171e523145d973f03b0245ac0aeb7f626f5e77b169ad321f68b1b"
+  },
+  "artifact_sha256": {
+    "array_extracted.cdl": "4d7e7a35cddb3d7e1e6d17979e5e9cfbb9dfd5318772e9624849f5d74744440f",
+    "cell.lef": "9e45bf22fdc7a93098ea243ac1c63a23c51cef62d004a0d2b1da414f17dec796",
+    "cell.lyrdb": "a8af7fd882ebac268a7f29cab0cb77cf71adc9548dce90aa1e5c5df8f0322f68",
+    "cell_extracted.cdl": "6ddf16953c5f2392aaad744c5165decaba66dab98112e0b79a0e6c21ae478eba",
+    "array.lvsdb": "952ece5333e33487134b5f9cce128cd7431873f7a2d0ceddd4ff3e9c265938ed",
+    "cell.cdl": "16ed935719b411c63d04b257ef4ba9747e846d50d7b5ca62ddc8b344cc03ac0b",
+    "array_reference.cdl": "cc167fcbd75701aaa808eb434abb2e0e0746237f068003e1296f8cd1c4382b28",
+    "cell_reference.cdl": "078b6590ed660c3f5c41be3caa6cbf23bce09913bd08043efbfde49f6b6c03b4",
+    "array.gds": "c0b1a82da7d927c34070c1f405d8894863c57178f309b80c1557c09af4d16f92",
+    "cell.lvsdb": "eec188c1066241dc4d1ba48830389d503bc83fdd01b8c90ee2876d8da8f08103",
+    "cell.gds": "b9dca9e8f00bd057a6ad7fce37634f7bb11617af734f7bb371b18030b79e8ae6",
+    "array.lyrdb": "0baaa9076c6318eaea99a2bbd9ed062e98712533c1c7dc02bfe420141640773f"
+  }
+}

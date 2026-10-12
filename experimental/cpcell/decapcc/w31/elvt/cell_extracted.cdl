@@ -1,0 +1,8 @@
+* GT2N extracted
+
+.SUBCKT gt2_6t_decapcc_cp_w31_elvt vss vdd
+M$1 \$3 \$4 vss vss nmos_elvt L=0.014U W=0.031U AS=0.000868P AD=0.000868P
++ PS=0.118U PD=0.118U
+M$2 vdd \$3 \$4 vdd pmos_elvt L=0.014U W=0.031U AS=0.000868P AD=0.000868P
++ PS=0.118U PD=0.118U
+.ENDS gt2_6t_decapcc_cp_w31_elvt

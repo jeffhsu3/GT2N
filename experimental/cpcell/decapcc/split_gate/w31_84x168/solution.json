@@ -1,0 +1,304 @@
+{
+  "format": "cpcell.split_gate.v1",
+  "design": {
+    "name": "gt2n_split_decap_w31_h168_lvt",
+    "n_width_nm": 31,
+    "p_width_nm": 31,
+    "height_nm": 168,
+    "vt": "lvt",
+    "n_flip": false,
+    "p_flip": false,
+    "cut_center_nm": 84.0,
+    "m0_tracks_nm": [
+      24,
+      48,
+      72,
+      96,
+      120,
+      144
+    ]
+  },
+  "width_nm": 84,
+  "height_nm": 168,
+  "scope": "Fixed split-gate decap placement, explicit tracks, M0/M1/M2 candidates and mirrored boundary clearance; not a global width proof",
+  "access": [
+    {
+      "terminal": "drain_n",
+      "net": "net7",
+      "layer": "VSD",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 144,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "drain_p",
+      "net": "net12",
+      "layer": "VSD",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 144,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "gate_n",
+      "net": "net12",
+      "layer": "VG",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 96,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 144,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        }
+      ]
+    },
+    {
+      "terminal": "gate_p",
+      "net": "net7",
+      "layer": "VG",
+      "candidates": [
+        {
+          "y_nm": 24,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 48,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor",
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 72,
+          "allowed": false,
+          "rejected_by": [
+            "outside_conductor"
+          ]
+        },
+        {
+          "y_nm": 96,
+          "allowed": true,
+          "rejected_by": []
+        },
+        {
+          "y_nm": 120,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        },
+        {
+          "y_nm": 144,
+          "allowed": false,
+          "rejected_by": [
+            "VG_ACT_clearance_below_6nm"
+          ]
+        }
+      ]
+    }
+  ],
+  "blocked_terminals": [],
+  "status": "OPTIMAL",
+  "wall_time": 0.015112017,
+  "objective": 1160.0,
+  "routes": [
+    {
+      "net": "net12",
+      "edge": 4
+    },
+    {
+      "net": "net12",
+      "edge": 8
+    },
+    {
+      "net": "net12",
+      "edge": 9
+    },
+    {
+      "net": "net12",
+      "edge": 26
+    },
+    {
+      "net": "net12",
+      "edge": 27
+    },
+    {
+      "net": "net12",
+      "edge": 33
+    },
+    {
+      "net": "net12",
+      "edge": 37
+    },
+    {
+      "net": "net12",
+      "edge": 59
+    },
+    {
+      "net": "net12",
+      "edge": 60
+    },
+    {
+      "net": "net7",
+      "edge": 7
+    },
+    {
+      "net": "net7",
+      "edge": 42
+    },
+    {
+      "net": "net7",
+      "edge": 43
+    },
+    {
+      "net": "net7",
+      "edge": 48
+    },
+    {
+      "net": "net7",
+      "edge": 52
+    },
+    {
+      "net": "net7",
+      "edge": 58
+    },
+    {
+      "net": "net7",
+      "edge": 61
+    }
+  ],
+  "route_metrics": {
+    "net12": {
+      "M0_length": 126,
+      "M1_length": 96,
+      "V0_count": 2,
+      "VSD_count": 1,
+      "VG_count": 1
+    },
+    "net7": {
+      "M0_length": 42,
+      "M1_length": 96,
+      "V0_count": 2,
+      "VSD_count": 1,
+      "VG_count": 1
+    }
+  }
+}

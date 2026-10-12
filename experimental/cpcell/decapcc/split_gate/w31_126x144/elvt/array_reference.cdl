@@ -1,0 +1,18 @@
+.subckt gt2_6t_decapcc_sg_w31_elvt vdd vss
+*.PININFO vdd:B vss:B
+MM1 net7 net12 vss vss nmos_elvt W=0.031u L=0.014u M=1
+MM0 net12 net7 vdd vdd pmos_elvt W=0.031u L=0.014u M=1
+.ends gt2_6t_decapcc_sg_w31_elvt
+
+
+.SUBCKT gt2_6t_decapcc_sg_w31_elvt_array vdd vss
+X00 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X10 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X20 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X01 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X11 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X21 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X02 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X12 vdd vss gt2_6t_decapcc_sg_w31_elvt
+X22 vdd vss gt2_6t_decapcc_sg_w31_elvt
+.ENDS gt2_6t_decapcc_sg_w31_elvt_array

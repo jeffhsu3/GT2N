@@ -1,0 +1,217 @@
+{
+  "elvt": {
+    "source": "/home/jeff/iv4/repos/GT2N/device/tt/gt2_w31_elvt_tt.sp",
+    "sha256": "6a41b1991326f9587bcc1179e9d7c3622821b9b3d541a8c5f2bfdeda1fde6724",
+    "adapted_sha256": "20a96167b04862cd7e8cd8c603181370158cfc5d01ad7a501b3545fde4eac42f",
+    "omitted": {
+      "nmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      },
+      "pmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      }
+    },
+    "switches": {
+      "nmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      },
+      "pmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      }
+    }
+  },
+  "ulvt": {
+    "source": "/home/jeff/iv4/repos/GT2N/device/tt/gt2_w31_ulvt_tt.sp",
+    "sha256": "6c780153cb95604ad1ad0fad045872401f4430bfa28625397275d00f7d970843",
+    "adapted_sha256": "d26e05527584615838f8cf7869f5bc38fd9670364c6bc1146d3bfdae7482d005",
+    "omitted": {
+      "nmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      },
+      "pmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      }
+    },
+    "switches": {
+      "nmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      },
+      "pmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      }
+    }
+  },
+  "lvt": {
+    "source": "/home/jeff/iv4/repos/GT2N/device/tt/gt2_w31_lvt_tt.sp",
+    "sha256": "9ca55127ff3d0619436c8a9797cd0dd366a7a590752232a89e51f97a8577f474",
+    "adapted_sha256": "e4efb5f3198a56ecf3d7ffc1802759da10bcded6fc0c4b67e8d6699d41152132",
+    "omitted": {
+      "nmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      },
+      "pmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      }
+    },
+    "switches": {
+      "nmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      },
+      "pmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      }
+    }
+  },
+  "svt": {
+    "source": "/home/jeff/iv4/repos/GT2N/device/tt/gt2_w31_svt_tt.sp",
+    "sha256": "472113ef6d2195483698756b475bba43276fc9405edc31e24418c13fd56f0bfb",
+    "adapted_sha256": "d6c2cf727553ce841d088737a8ac201050efed52bc86fd435327597a87a055c0",
+    "omitted": {
+      "nmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      },
+      "pmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      }
+    },
+    "switches": {
+      "nmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      },
+      "pmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      }
+    }
+  },
+  "hvt": {
+    "source": "/home/jeff/iv4/repos/GT2N/device/tt/gt2_w31_hvt_tt.sp",
+    "sha256": "2d659237ced0fa0d518508469d224146090dce3d006dfc6793c75e2ad5c5946a",
+    "adapted_sha256": "a7881c7239402b0080aba1393ac09e8d62b1ee120c39447269d27b83df5d1093",
+    "omitted": {
+      "nmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      },
+      "pmos": {
+        "VERSION": 111,
+        "CAPMOD": 1,
+        "COREMOD": 0,
+        "PRWG": 0
+      }
+    },
+    "switches": {
+      "nmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      },
+      "pmos": {
+        "BULKMOD": 0,
+        "IGCMOD": 0,
+        "IGBMOD": 0,
+        "GIDLMOD": 0,
+        "CGEOMOD": 0,
+        "TNOM": 25,
+        "TFIN": 5e-09,
+        "HFIN": 3.1e-08,
+        "NFIN": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+* GT2N partial PEX, numeric coordinates in nm; scale output F by 1e-9
+C conductors_k2.4.qui 2.4 0 0 0 +
+C conductors_k3.9.qui 3.9 0 0 0 +
+C conductors_k7.qui 7 0 0 0
+D interface_0.qui 7 3.9 0 0 0 0 0 1
+D interface_1.qui 2.4 7 0 0 0 0 0 99
